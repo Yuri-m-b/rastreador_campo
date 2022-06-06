@@ -48,6 +48,7 @@ class main_window(Frame):
     max_medido_x, min_medido_x = -99, 99
     max_medido_y, min_medido_y = -99, 99
     
+    
     def __init__(self):
         super().__init__()
 
@@ -1285,7 +1286,16 @@ class main_window(Frame):
                 self.meas_movimento_cnc(self.dict_jog['down'], self.var_step_y)
                 while(controle_cnc.estado_atual(self.serial_cnc)!='Idle'):
                     time.sleep(0.125)
-       
+                    
+        detx = np.linalg.det(self.matrix_meas_x) # Calcula determinante da matriz x
+        dety = np.linalg.det(self.matrix_meas_y) # Calcula determinante da matriz y
+
+        """Coloca as matrizes em variaveis globais"""
+        if (detx != 0):
+            self.matrix_realx = self.matrix_meas_x            
+        if (dety != 0):
+            self.matrix_realy = self.matrix_meas_y
+        
         self.flag_medindo=False
     
     #Função para salvar arquivo com extensão csv
@@ -1416,7 +1426,13 @@ class main_window(Frame):
             if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
                 return
         try:
-            data=self.matrix_meas_x
+#             if (self.matrix_realx = None):
+#                 messagebox.showwarning(title="Erro Ação impossivel",
+#                 message="Não é possivel realizar está função\nsem a medição")
+# #                 return
+# #             else:
+            data=self.matrix_realx
+            
 #             data = [[-10,-10,-10,-10],[-8,-7,-8,-7],[-3,-3,-3,-2],[-2,-3,-2,-1]]
         except:
             #erro no dado atual
@@ -1667,7 +1683,7 @@ class main_window(Frame):
             if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
                 return
         try:
-            data=self.matrix_meas_y
+            data=self.matrix_realy
 #             data = [[-2,-3,-1,-2],[-3,-1,-2,-3],[-6,-7,-6,-7],[-10,-10,-10,-10]]
         except:
             #erro no dado atual
