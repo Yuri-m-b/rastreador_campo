@@ -1,9 +1,17 @@
-# VERSÃO 1.2- Tempo estimado agora atualiza conforme
-# progresso da medição
+# VERSÃO 1.1
 #
-# Versão passadas:
-# V1.1- Adicionado botão para abrir arquivos csv na aba
-# controle e medições
+
+## @package Bibliotecas
+# tkinter: biblioteca da interface do programa.\n
+# matplotlib: biblioteca usada para a plotagem do mapa de calor.\n\n
+# serial.tools.list_port: biblioteca usada para conexão serial.\n\n
+# time: biblioteca usada para as funções delay.\n\n
+# csv: biblioteca para salvar dados em arquivo csv.\n\n
+# numpy: biblioteca usada para array.\n\n
+# datetime: biblioteca que resgata o tempo da máquina.\n\n
+# os: biblioteca que utiliza funcionalidades dependendo do sistema operacional.\n\n
+# cnc_controle e analisador_controle: bibliotecas para escrita e leitura serial com grbl.
+#
 
 #Biblioteca de interface
 from tkinter import *
@@ -22,10 +30,10 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-import serial.tools.list_ports   #Bibliote de conecção serial
+import serial.tools.list_ports   #Biblioteca de conecção serial
 import time                      #Biblioteca para delay
 import csv                       #Biblioteca salvar dados em arquivo csv
-import numpy as np               #Biblioteca de array FUTURO RETIRAR
+import numpy as np               #Biblioteca de array
 from datetime import datetime, timedelta    #Biblioteca do tempo da maquina
 import os
 
@@ -35,6 +43,14 @@ from cnc_controle import controle_cnc
 from analisador_controle import controle_analisador
 
 class main_window(Frame):
+    ## @package Variáveis_de_Inicialização
+    # rows,cols: Tamanho da tabela que inicia no tamanho 13-13.\n
+    # rows_disp: Número de linhas apresentado na interface começando em 10.35.\n\n
+    # cols_disp: Número de colunas apresentado na interface começando em 7.72.\n\n
+    # var_step_x,var_step_y: São os passos do movimento para cada eixo ambos começando em 1,1.\n\n
+    # flag_medindo, flag_stop: Variáveis utilizadas para mostrar se o rastreador está medindo, ou se deve ser parado.\n\n
+    # flag_grade, flag_anotacao, flag_auto_maxmin: Variáveis usadas na plotagem do mapa de calor.\n\n
+    # max_medido, min_medido: Variáveis que armazenam o valor máximo medido e minimo medido.
     dict_jog = {'up': '$J=G91 Y+% F200',\
                 'down': '$J=G91 Y-% F200',\
                 'left': '$J=G91 X-% F200',\
@@ -42,7 +58,7 @@ class main_window(Frame):
                 'z_up': '$J=G91 Z+% F200',
                 'z_down': '$J=G91 Z-% F200'}
     
-    rows, cols = 13, 13  # tamanho da tabela
+    rows, cols = 13, 13
     rows_disp = 10.35  # numero de linhas apresentado
     cols_disp = 7.75 # numero de colunas apresentado
     var_step_x, var_step_y = 1, 1 # passo de cada eixo
@@ -51,6 +67,8 @@ class main_window(Frame):
     max_medido, min_medido = -99, 99
     
     def __init__(self):
+        """Função método chamado como um construtor na terminologia orientada a objetos
+        esse método e chamado quando um objeto é criado a partir de uma classe"""
         super().__init__()
 
         self.initUI()
@@ -59,6 +77,7 @@ class main_window(Frame):
         self.visa_analisador = None
         
     def initUI(self):
+        """ Função que atribui as configurações da 'janela' do programa."""
         #-Altera tema da janela
         #style = ThemedStyle(self)
         #style.set_theme("black")
@@ -531,7 +550,9 @@ class main_window(Frame):
         self.att_matriz()
         
     #Função para atualizar lista das portas COM
-    def lista_serial(self):        
+    def lista_serial(self):
+        """ Função utilizada para atualizar os aparelhos conectados via USB nas
+        portas COM do computador."""
         portas=controle_cnc.list_serial()
         
         self.cmb_analisador['values'] = portas
@@ -542,6 +563,7 @@ class main_window(Frame):
 
     #Função para iniciar comunicação com analisador
     def abrir_visa_analisador(self):
+        """Função que inicializa a comunicação com o analisador de espectro."""
         if (self.verifica_medicao()):
             return
         com_port =  self.cmb_analisador.get()
@@ -555,11 +577,13 @@ class main_window(Frame):
     
     #Função leitura amplitude do analisador
     def leitura_amplitude(self):
+        """Função que retorna o valor lido da amplitude feita pelo analisador de espectro."""
         #futuro ... integração com o novo analisador
         return controle_analisador.receiver_amplitude(self.visa_analisador)
         
     #Função para abrir porta serial da CNC
     def abrir_serial_cnc(self):
+        """Função que abre a porta serial da CNC para comunicação."""
         if (self.verifica_medicao()):
             return
         com_port =  self.cmb_cnc.get()
@@ -572,6 +596,7 @@ class main_window(Frame):
             
     #Função de movimento através do botões de controle
     def ctrl_movimento_cnc(self, direcao):
+        """Função para movimentação da antena apartir dos botões de controle na interface do programa."""
         if (self.serial_cnc != None):
             direcao = direcao.replace('%', self.cmb_step.get())
             str_resposta=controle_cnc.cnc_jog(direcao, self.serial_cnc)
@@ -580,8 +605,9 @@ class main_window(Frame):
             self.txt_log.insert(END, str_resposta)
             self.txt_log.see(END)
             
-    #Função de motivmento durante medição        
+    #Função de movimento durante medição        
     def meas_movimento_cnc(self, direcao, step):
+        """Função utilizada no movimento da antena durante a medição."""
         if (self.serial_cnc != None):
             direcao = direcao.replace('%', str(step))
             str_resposta=controle_cnc.cnc_jog(direcao, self.serial_cnc)
@@ -591,6 +617,7 @@ class main_window(Frame):
     
     #Função de envio comandos para serial CNC
     def envia_cmd_cnc(self):
+        """Função que envia os comandos serial CNC."""
         if (self.serial_cnc != None):
             str_comando=self.ent_cmd.get()
             
@@ -601,11 +628,13 @@ class main_window(Frame):
     
     #Função de evento de "ENTER"       
     def comp_s(self, event):
+        """Função usada ao pressionar "ENTER"."""
         self.envia_cmd_cnc()
     
     #Função para verificar se está medindo     
     def verifica_medicao(self):
-        #Caso esteja medindo acusa erro e retorna true para if de break
+        """Função que verifica se uma medição está sendo realizada."""
+        #Caso esteja medindo aparece mensagem de erro.
         if (self.flag_medindo):
             messagebox.showwarning(title="Erro Ação impossivel",
                                    message="Não é possivel realizar está função\ndurante a medição")
@@ -617,7 +646,8 @@ class main_window(Frame):
     
     #Função se string contem somente numero e maior que zero     
     def verifica_string(self, string, mensagem):
-        #Caso string contem somente numero
+        """Função para verificar se a string contém somente números e se esses números são maior que zero."""
+        #Caso número comece com sinal negativo substitui o sinal por '0'
         if not(string.isdigit()):
             messagebox.showwarning(title=('Erro nos valores de '+mensagem),
                                    message=('O valor '+mensagem+' deve ser um numero decimal maior que zero'))
@@ -632,7 +662,8 @@ class main_window(Frame):
         
     #Verifica se string é um numero decimal     
     def verifica_numero(self, string, mensagem):
-        #Caso numero comece com sinal negativo
+        """Função para verificar se a string é um número decimal."""
+        #Caso número comece com sinal negativo substitui o sinal por '0'
         if(string[0]=='-'):
             string=string.replace('-','0',1)
         if not(string.isdigit()):#verifica se é somente digito
@@ -644,6 +675,7 @@ class main_window(Frame):
     
     #Função de definição de ponto 1
     def start_point(self):
+        """Função que define o ponto 1 para a matriz."""
         if (self.verifica_medicao()):
             return
         xyz=controle_cnc.current_pos(self.serial_cnc)
@@ -655,6 +687,7 @@ class main_window(Frame):
     
     #Funções de definição de ponto 2
     def end_point(self):#da pra melhorar juntado star_point com end_point passando pra função se é start ou end
+        """Função que define o ponto 2 para a matriz."""
         if (self.verifica_medicao()):
             return
         xyz=controle_cnc.current_pos(self.serial_cnc)
@@ -666,6 +699,7 @@ class main_window(Frame):
     
     #Função para atualiza passo entre medidas
     def atualiza_passo(self):
+        """Função que atualiza o passo para o eixo X e eixo Y."""
         if (self.verifica_medicao()):
             return
         try:
@@ -680,6 +714,7 @@ class main_window(Frame):
     
     #Função de ativação flag de parar medição
     def stop_meas(self):
+        """Função que ativa o flag para parar a medição."""
         if(self.flag_medindo):
             #envia para o arduino parar
             self.flag_stop=True
@@ -687,6 +722,7 @@ class main_window(Frame):
     
     #Função para atualziar tamanho da matriz
     def att_matriz(self):
+        """Função para atualizar o tamanho de matriz de acordo com os valores escolhidos pelo usúario."""
         if (self.flag_medindo):
             print("Botão pressionado y="+str(row)+" x="+str(col))
             messagebox.showwarning(title="Erro Ação impossivel",
@@ -774,6 +810,7 @@ class main_window(Frame):
     
     #Função de re medição de ponto
     def medir_ponto(self,row,col):
+        """Função para a medição do ponto selecionado manualmente."""
         if (self.verifica_medicao()):
             return
         
@@ -826,9 +863,9 @@ class main_window(Frame):
         
         self.flag_medindo=False
         
-    #Função comunicação com analisador para definição
-    #frequencia de medição
+    #Função de comunicação com analisador para definição da frequencia de medição
     def att_freq(self):
+        """Função que comunica com o analisador de espectro para sua atualização de frequência."""
         if (self.verifica_medicao()):
             return
         
@@ -848,6 +885,8 @@ class main_window(Frame):
         
     #Função de medição
     def medicao(self):
+        """Função que realiza a medição dos pontos, movimenta a antena,
+        recebe os valores de amplitude."""
         if (self.verifica_medicao()):
             return
         #Verifica se ponto superior esquerdo foi definido e atribui a variaveis
@@ -983,6 +1022,7 @@ class main_window(Frame):
     
     #Função para salvar arquivo com extensão csv
     def save(self):
+        """Função que salva a matriz gerada como um arquivo com extensão csv."""
         try:
             self.meas_time.strftime
             file_path=(filedialog.askdirectory()+'\\'+self.str_save.get()+
@@ -1001,6 +1041,7 @@ class main_window(Frame):
     
     #Função de homing
     def vai_origem(self):
+        """Função que posiciona a antena para o ponto inicial/origem da matriz."""
         if(self.verifica_medicao()):
             return
         controle_cnc.cnc_jog('$H',self.serial_cnc)
@@ -1010,6 +1051,7 @@ class main_window(Frame):
         
     #Função de alteração da flag de plot da grade
     def plot_grade(self):
+        """Função que altera se o plot do mapa de calor será com ou sem grade."""
         if(self.flag_grade):
             self.btn_plt_grade.config(text='        Grade\nDESABILITADO')
             self.flag_grade=False
@@ -1018,7 +1060,8 @@ class main_window(Frame):
             self.flag_grade=True
     
     #Função de alteração da flag de plot das anotações nos eixos
-    def plot_anotacao(self):     
+    def plot_anotacao(self):
+        """Função que altera se o plot do mapa de calor será com ou sem anotação."""
         if(self.flag_anotacao):
             self.btn_plt_anotacao.config(text='     Unidade\nDESABILITADO')
             self.var_plot_tamanho_x['state'] = 'disable'
@@ -1031,7 +1074,8 @@ class main_window(Frame):
             self.flag_anotacao=True
             
     #Função de alteração da flag de plot das anotações nos eixos
-    def plot_auto_maxmin(self):     
+    def plot_auto_maxmin(self):
+        """Função que altera o max e min do plot do mapa de calor."""
         if(self.flag_auto_maxmin):
             self.btn_plt_maxmin.config(text='MAX/MIN automático DESABILITADO')
             self.var_plot_max['state'] = 'enable'
@@ -1045,6 +1089,7 @@ class main_window(Frame):
             
     #Função de apresentação do mapa de calor para o dado medida realizada
     def plot_dadoatual(self):
+        """Função que gera o mapa de calor de acordo com os dados obtidos pela medição realizada."""
         if not(self.flag_auto_maxmin):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
                 return
@@ -1080,6 +1125,8 @@ class main_window(Frame):
         self.mapa_de_calor(data, vmax, vmin, step, flag, escolhas, destino_save)
         
     def plot_arquivo_csv(self):
+        """Função que gera o mapa de calor de acordo com os dados obtidos
+        pelo arquivo csv."""
         if not (self.flag_auto_maxmin):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
                 return
@@ -1133,6 +1180,8 @@ class main_window(Frame):
     
     # Para o botão de abrir arquivo csv na aba principal do programa YURI
     def info_arquivocsv(self):
+        """Função que obtem os dados de uma matriz salvos em um csv e
+        atualiza esses valores na tabela da matriz."""
         if (self.verifica_medicao()):
             return          
         if not (self.flag_auto_maxmin):
@@ -1267,6 +1316,7 @@ class main_window(Frame):
             i = i + 1
     
     def plot_salva(self):
+        """Função que salva o último plot criado pelo programa."""
         files = [('Portable Graphics Format(PNG)', '*.png'),
                  ('All Files', '*.*')] 
         destino= filedialog.asksaveasfilename(filetypes = files, defaultextension = ".png")
@@ -1274,6 +1324,8 @@ class main_window(Frame):
         plt.savefig(destino,bbox_inches="tight")
     
     def mapa_de_calor(self, data, vmax, vmin, step, flag, escolhas, destino_save):
+        """Função que gera o plot do mapa de calor de acordo com os dados
+        obtidos."""
         #flag[0] habilitação da anotação
         #flag[1] habilitação da grade
         #flag[2] escolha entre apresentação ou salvar
@@ -1344,6 +1396,7 @@ class main_window(Frame):
             self.canvas2.get_tk_widget().place(x=5,y=5,width=790)
             
     def all_children (self, wid) :
+        """Função que organiza as ferramentas da interface tkinter."""
         widget_list = wid.winfo_children()
         for item in widget_list :
             if item.winfo_children() :
@@ -1352,9 +1405,11 @@ class main_window(Frame):
             item.destroy()
         
 def resize(event):
+    """Função que altera o tamanho da janela do programa."""
     print("Novo tamanho é: {}x{}".format(event.width, event.height))
 
 def main():
+    """Função que gera a janela da interface junto com suas características."""
     #---Gera janela-----------------------
     root = Tk()
     root.geometry('1080x720')
