@@ -810,7 +810,8 @@ class main_window(Frame):
     
     #Função de re medição de ponto
     def medir_ponto(self,row,col):
-        """Função para a medição do ponto selecionado manualmente."""
+        """Função para a medição do ponto selecionado manualmente.
+            blab"""
         if (self.verifica_medicao()):
             return
         

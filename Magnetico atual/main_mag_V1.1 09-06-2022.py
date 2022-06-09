@@ -774,12 +774,6 @@ class main_window(Frame):
         self.lista_serial()
         self.att_matriz()
         
-#         Y, X = np.mgrid[-3:3:100j, -3:3:100j]
-#         U = -1 - X**2 + Y
-#         V = 1 + X - Y**2
-#         self.matrix_meas_y = np.full((self.rows, self.cols), -5)
-#         self.matrix_meas_x = np.full((self.rows,self.cols), 5)
-
         
     #Função para atualizar lista das portas COM
     def lista_serial(self):        
@@ -1190,16 +1184,16 @@ class main_window(Frame):
                 time.sleep(0.125)
                 
         if not(sentido):
-            self.matrix_meas_y = [[-80 for _ in range(self.cols)] for _ in range(self.rows)]
-            print('1')
+            #self.matrix_meas_y = [[-80 for _ in range(self.cols)] for _ in range(self.rows)]
+            print('Criando matriz x')
             self.max_medido_y, self.min_medido_y = -99, 0
             print('zero y')
             self.lbl_par_13['text'] = str(self.max_medido_y)
             self.lbl_par_14['text'] = str(self.min_medido_y)
             
         else:
-            self.matrix_meas_x = [[-80 for _ in range(self.cols)] for _ in range(self.rows)]
-            print('2')
+            #self.matrix_meas_x = [[-80 for _ in range(self.cols)] for _ in range(self.rows)]
+            print('Criando matriz y')
             self.max_medido_x, self.min_medido_x = -99, 0
             print('zero x')
             self.lbl_par_15['text'] = str(self.max_medido_x)
@@ -1208,7 +1202,7 @@ class main_window(Frame):
         var_progressbar=0
         self.var_pb.set(var_progressbar)
         step_progressbar=100/((self.rows)*(self.cols))
-        
+        self.meas_time = datetime.now()
         flag_ordem=True #false=esquerda pra direita
         for i in range(0, self.rows):#linha
             if(flag_ordem):
@@ -1235,6 +1229,12 @@ class main_window(Frame):
                         self.button_matriz_y[i][j].config(text="\n"+str(self.matrix_meas_y[i][j])+" dBm\n")
                     var_progressbar=var_progressbar+step_progressbar
                     self.var_pb.set(var_progressbar)
+                    if (i > 0) or (j > 0): #define tempo entre dois pontos 
+                        tempo_total = tempo_total - delta_t
+                        tempo_total = timedelta(seconds=tempo_total.total_seconds())
+                        horas, sobra = divmod(tempo_total.seconds, 3600)
+                        minutos, segundos = divmod(sobra, 60)
+                        self.lbl_10.config(text='Tempo estimado de {:02d} : {:02d}: {:02d}'.format(horas, minutos, segundos))
                     self.master.update()
                     if(j+1<self.cols):
                         #time.sleep(self.tempo_entre_medidas) #pra teste da tela atualizando
@@ -1243,7 +1243,7 @@ class main_window(Frame):
                             time.sleep(0.125)
                         if (i == 0) and (j == 0): #define tempo entre dois pontos
                             delta_t = datetime.now() - self.meas_time
-                            tempo_total = (self.rows-1)*(self.cols-1)*delta_t
+                            tempo_total = (self.rows)*(self.cols)*delta_t
                             tempo_total = timedelta(seconds=tempo_total.total_seconds())
                             horas, sobra = divmod(tempo_total.seconds, 3600)
                             minutos, segundos = divmod(sobra, 60)
@@ -1274,6 +1274,12 @@ class main_window(Frame):
                         self.button_matriz_y[i][j].config(text="\n"+str(self.matrix_meas_y[i][j])+" dBm\n")
                     var_progressbar=var_progressbar+step_progressbar
                     self.var_pb.set(var_progressbar)
+                    if (i > 0) or (j > 0): #define tempo entre dois pontos 
+                        tempo_total = tempo_total - delta_t
+                        tempo_total = timedelta(seconds=tempo_total.total_seconds())
+                        horas, sobra = divmod(tempo_total.seconds, 3600)
+                        minutos, segundos = divmod(sobra, 60)
+                        self.lbl_10.config(text='Tempo estimado de {:02d} : {:02d}: {:02d}'.format(horas, minutos, segundos))
                     self.master.update()
                     if(j!=0):
                         #time.sleep(self.tempo_entre_medidas) #pra teste da tela atualizando
@@ -1286,7 +1292,8 @@ class main_window(Frame):
                 self.meas_movimento_cnc(self.dict_jog['down'], self.var_step_y)
                 while(controle_cnc.estado_atual(self.serial_cnc)!='Idle'):
                     time.sleep(0.125)
-                    
+         
+        """Calcula determinante das matrizes x e y"""
         detx = np.linalg.det(self.matrix_meas_x) # Calcula determinante da matriz x
         dety = np.linalg.det(self.matrix_meas_y) # Calcula determinante da matriz y
 
@@ -1295,7 +1302,13 @@ class main_window(Frame):
             self.matrix_realx = self.matrix_meas_x            
         if (dety != 0):
             self.matrix_realy = self.matrix_meas_y
-        
+            
+        if (sentido):
+            messagebox.showwarning(title="Mudar Eixo",
+                message="Posicione o eixo da antena para a posição X")
+        else:
+            messagebox.showwarning(title="Mudar Eixo",
+                message="Posicione o eixo da antena para a posição Y")
         self.flag_medindo=False
     
     #Função para salvar arquivo com extensão csv
@@ -1426,14 +1439,14 @@ class main_window(Frame):
             if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
                 return
         try:
-#             if (self.matrix_realx = None):
-#                 messagebox.showwarning(title="Erro Ação impossivel",
-#                 message="Não é possivel realizar está função\nsem a medição")
-# #                 return
-# #             else:
-            data=self.matrix_realx
             
-#             data = [[-10,-10,-10,-10],[-8,-7,-8,-7],[-3,-3,-3,-2],[-2,-3,-2,-1]]
+            det_measx = np.linalg.det(self.matrix_meas_x)
+            if (det_measx == 0):
+                messagebox.showwarning(title="Erro Ação impossivel",
+                message="Não é possivel realizar está função\nsem a medição")
+                return
+            data=self.matrix_meas_x
+
         except:
             #erro no dado atual
             return
@@ -1456,12 +1469,7 @@ class main_window(Frame):
         x=[]
         temp=[]
         x_tamanho, y_tamanho = 0, 0
-#         for i in range(0, self.rows):#linha
-#             for j in range(0, self.cols):#coluna
-#         for i in range(0, len(data)):#linha
-#             for j in range(0, len(data)):#coluna
-#                 x.append(data[i][j])
-#                 y.append(0)
+
         for temp in data:
             y_tamanho = y_tamanho + 1
             for celula in temp:
@@ -1470,11 +1478,7 @@ class main_window(Frame):
                 y.append(0)
                 x_tamanho = x_tamanho + 1
         x_tamanho = int(x_tamanho/y_tamanho)
-#         y_tamanho = self.cols
-#         x_tamanho = self.rows
-#         x_tamanho = np.arange(0, len(data))
-#         y_tamanho = np.arange(0, len(data))
-       
+      
         
         X = []
         for i in range(y_tamanho):
@@ -1485,8 +1489,6 @@ class main_window(Frame):
         for i in range(y_tamanho):
             for j in range(x_tamanho):
                 Y.append(i)
-        
-#         X, Y = np.meshgrid(x_tamanho, y_tamanho)
         
         #plot com quiver
         norm = []
@@ -1656,13 +1658,7 @@ class main_window(Frame):
             plt.colorbar(im, shrink=1, ax=ax)
         else:
             plt.colorbar(im, shrink=0.8, ax=ax)
-            
-        #Tamanho do mapa de calor
-#         plt.xlim(right=len(data[0])-0.5)
-#         plt.xlim(left=-0.5)
-#         plt.ylim(top=-0.5)
-#         plt.ylim(bottom=len(data)-0.5)
-        
+                    
         #Grade
         if(flag[1]):
             ax[0].grid(color='w', which='major', alpha=0.5)
@@ -1683,8 +1679,13 @@ class main_window(Frame):
             if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
                 return
         try:
-            data=self.matrix_realy
-#             data = [[-2,-3,-1,-2],[-3,-1,-2,-3],[-6,-7,-6,-7],[-10,-10,-10,-10]]
+            det_measy = np.linalg.det(self.matrix_meas_y)
+            if (det_measy == 0):
+                messagebox.showwarning(title="Erro Ação impossivel",
+                message="Não é possivel realizar está função\nsem a medição")
+                return
+            data=self.matrix_meas_y
+
         except:
             #erro no dado atual
             return
@@ -1706,12 +1707,7 @@ class main_window(Frame):
         y=[]
         x=[]
         x_tamanho, y_tamanho = 0, 0
-#         for i in range(0, self.rows):#linha
-#             for j in range(0, self.cols):#coluna
-#         for i in range(0, len(data)):#linha
-#             for j in range(0, len(data)):#coluna
-#                 y.append(data[i][j])
-#                 x.append(0)
+
         for temp in data:
             y_tamanho = y_tamanho + 1
             for celula in temp:
@@ -1721,10 +1717,6 @@ class main_window(Frame):
                 x_tamanho = x_tamanho + 1
         x_tamanho = int(x_tamanho/y_tamanho)
         
-#         y_tamanho = self.cols
-#         x_tamanho = self.rows
-#         x_tamanho = np.arange(0, len(data))
-#         y_tamanho = np.arange(0, len(data))
         
         X = []
         for i in range(y_tamanho):
@@ -1736,7 +1728,6 @@ class main_window(Frame):
             for j in range(x_tamanho):
                 Y.append(i)
 
-#         X, Y = np.meshgrid(x_tamanho, y_tamanho)
         #plot com quiver
         norm = []
         for j in range(len(y)):
@@ -1905,11 +1896,6 @@ class main_window(Frame):
         else:
             plt.colorbar(im, shrink=0.8, ax=ax)
             
-        #Tamanho do mapa de calor
-#         plt.xlim(right=len(data[0])-0.5)
-#         plt.xlim(left=-0.5)
-#         plt.ylim(top=-0.5)
-#         plt.ylim(bottom=len(data)-0.5)
         
         #Grade
         if(flag[1]):
@@ -2091,11 +2077,7 @@ class main_window(Frame):
         else:
             plt.colorbar(im, shrink=0.8, ax=ax)
             
-        #Tamanho do mapa de calor
-#         plt.xlim(right=len(data[0])-0.5)
-#         plt.xlim(left=-0.5)
-#         plt.ylim(top=-0.5)
-#         plt.ylim(bottom=len(data)-0.5)
+
         
         #Grade
         if(flag[1]):
