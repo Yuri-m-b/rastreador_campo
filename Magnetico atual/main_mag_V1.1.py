@@ -1,4 +1,4 @@
-#Main Magnético V1.1
+#Main Magnético V1.1 - 09/06/2022
 
 
 #Biblioteca de interface
@@ -56,6 +56,7 @@ class main_window(Frame):
         
         self.serial_cnc = None
         self.visa_analisador = None
+        self.visa_gerador = None
         
     def initUI(self):
         #-Altera tema da janela
@@ -378,7 +379,7 @@ class main_window(Frame):
         
         self.btn_freq_refresh = Button(frm_freq, text='Atualizar')
         self.btn_freq_refresh.place(x=72,y=27,width=132,height=25)
-        self.btn_freq_refresh['command'] = self.att_freq
+        self.btn_freq_refresh['command'] = self.janela_configuracao
         
         #-Botões de atuação medição
         btn_stop = Button(self.frm_notebook1, text='Abortar Medição')
@@ -393,7 +394,7 @@ class main_window(Frame):
         btn_start.place(x=10,y=300,width=145,height=40)
         btn_start['command'] = lambda sentido=False: self.medicao(sentido)
         
-        #-Notebook ed plotagem
+        #-Notebook de plotagem
         self.frm_notebook2 = Frame(notebook)
         self.frm_notebook2.pack(fill=BOTH, expand=True)
         notebook.add(self.frm_notebook2, text='      Mapa de calor X     ')
@@ -856,7 +857,81 @@ class main_window(Frame):
             return True
         else:
             return False
-    
+        
+    def janela_configuracao(self):
+        # Funcao para abrir pop up window
+        top= Toplevel()
+        top.geometry("250x300")
+        top.title("Configuração")
+        
+        lbl_top_01 = Label(top, text='Frequência:')
+        lbl_top_01.place(x=5,y=3,width=90,height=20)
+        
+        self.var_freq=Entry(top)
+        self.var_freq.insert(END, '%d' % 25)
+        self.var_freq.place(x=73,y=3,width=63,height=20)
+        
+        self.cmb_freq = Combobox(top)
+        self.cmb_freq.place(x=143,y=3,width=60,height=20)
+        self.cmb_freq['values'] = ['GHz','MHz','KHz']
+        self.cmb_freq.current(1)
+        
+        self.btn_freq_refresh = Button(top, text='Atualizar')
+        self.btn_freq_refresh.place(x=72,y=27,width=132,height=25)
+        self.btn_freq_refresh['command'] = self.att_freq
+        
+        lbl_top_02 = Label(top, text='Frequência\ndo Gerador:')
+        lbl_top_02.place(x=5,y=53,width=150,height=50)
+        
+        self.var_freq_ger=Entry(top)
+        self.var_freq_ger.insert(END, '%d' % 25)
+        self.var_freq_ger.place(x=73,y=58,width=63,height=20)
+        
+        self.cmb_freq_ger = Combobox(top)
+        self.cmb_freq_ger.place(x=143,y=58,width=60,height=20)
+        self.cmb_freq_ger['values'] = ['GHz','MHz','KHz']
+        self.cmb_freq_ger.current(1)
+        
+        self.btn_freq_ger_refresh = Button(top, text='Atualizar')
+        self.btn_freq_ger_refresh.place(x=72,y=82,width=132,height=25)
+        self.btn_freq_ger_refresh['command'] = self.att_freq
+ 
+        lbl_top_03 = Label(top, text='Impedancia:')
+        lbl_top_03.place(x=5,y=115,width=90,height=20)
+        
+        self.var_imped=Entry(top)
+        self.var_imped.insert(END, '%d' % 25)
+        self.var_imped.place(x=73,y=113,width=63,height=20)
+        
+        self.cmb_imped = Combobox(top)
+        self.cmb_imped.place(x=143,y=113,width=60,height=20)
+        self.cmb_imped['values'] = ['GHz','MHz','KHz']
+        self.cmb_imped.current(1)
+        
+        self.btn_imped_refresh = Button(top, text='Atualizar')
+        self.btn_imped_refresh.place(x=72,y=137,width=132,height=25)
+        self.btn_imped_refresh['command'] = self.att_freq
+        
+        lbl_top_04 = Label(top, text='Amplitude:')
+        lbl_top_04.place(x=5,y=165,width=90,height=20)
+        
+        self.var_amplit=Entry(top)
+        self.var_amplit.insert(END, '%d' % 25)
+        self.var_amplit.place(x=73,y=168,width=63,height=20)
+        
+        self.cmb_amplit = Combobox(top)
+        self.cmb_amplit.place(x=143,y=168,width=60,height=20)
+        self.cmb_amplit['values'] = ['GHz','MHz','KHz']
+        self.cmb_amplit.current(1)
+        
+        self.btn_amplit_refresh = Button(top, text='Atualizar')
+        self.btn_amplit_refresh.place(x=72,y=192,width=132,height=25)
+        self.btn_amplit_refresh['command'] = self.att_freq
+
+        self.btn_output_refresh = Button(top, text='Ligar Saída')
+        self.btn_output_refresh.place(x=72,y=247,width=132,height=30)
+        self.btn_output_refresh['command'] = self.att_freq
+        
     #Função se string contem somente numero e maior que zero     
     def verifica_string(self, string, mensagem):
         #Caso string contem somente numero
@@ -927,15 +1002,16 @@ class main_window(Frame):
             self.flag_stop=True
             self.flag_medindo=False
     
-    #Função de ativação flag de pausa medição
-    def pause_meas(self):
-        if(self.flag_medindo):
-            if not (self.flag_stop):
-                #envia para o arduino parar
-                self.flag_stop=True
-            else :
-                self.btn_pause.config(text=('Continuar'))
-                pass # AQUI ENTRA CONTINUAÇÃO DA MEDIÇÃO
+    """Possivelmente não sendo mais usada"""
+#     #Função de ativação flag de pausa medição
+#     def pause_meas(self):
+#         if(self.flag_medindo):
+#             if not (self.flag_stop):
+#                 #envia para o arduino parar
+#                 self.flag_stop=True
+#             else :
+#                 self.btn_pause.config(text=('Continuar'))
+#                 pass # AQUI ENTRA CONTINUAÇÃO DA MEDIÇÃO
     
     #Função para atualziar tamanho da matriz
     def att_matriz(self):
@@ -1028,10 +1104,10 @@ class main_window(Frame):
         # Adiciona botões no frame
         for i in range(0, int(valor_y)):
             for j in range(0, int(valor_x)):
-                self.button_matriz_x[i][j] = Button(self.buttons_frame_x, text="\nx=0 dbm\n")
+                self.button_matriz_x[i][j] = Button(self.buttons_frame_x, text="mX[%d,%d]\nx=%d\ny=%d" % (int(valor_x), int(valor_y),j+1,i+1))
                 self.button_matriz_x[i][j].grid(row=i, column=j)
                 self.button_matriz_x[i][j]['command'] = lambda var1=i, var2=j: self.medir_ponto(var1,var2,False)
-                self.button_matriz_y[i][j] = Button(self.buttons_frame_y, text="\ny=0 dbm\n")
+                self.button_matriz_y[i][j] = Button(self.buttons_frame_y, text="mY[%d,%d]\nx=%d\ny=%d" % (int(valor_x), int(valor_y),j+1,i+1))
                 self.button_matriz_y[i][j].grid(row=i, column=j)
                 self.button_matriz_y[i][j]['command'] = lambda var1=i, var2=j: self.medir_ponto(var1,var2,True)
         
@@ -1141,6 +1217,26 @@ class main_window(Frame):
             freq=int(freq)*pow(10, 9)
         controle_analisador.receiver_frequencia(self.visa_analisador,freq)
         
+    def att_gerador_freq(self):
+        if (self.verifica_medicao()):
+            return
+        
+        freq_gerador = self.var_freq_ger()
+        
+        #Verifica se string contem somente numero e maior que zero
+        if (self.verifica_string(freq_gerador, 'frequência')):
+            return
+        
+        if(self.cmb_freq_ger.get()=="KHz"):
+            freq_gerador=int(freq_gerador)*pow(10, 3)
+        elif(self.cmb_freq_ger.get()=="MHz"):
+            freq_gerador=int(freq_gerador)*pow(10, 6)
+        else:
+            freq_gerador=int(freq_gerador)*pow(10, 9)
+        gerador_controle.gerador_frequencia(self.visa_analisador,freq_gerador)
+        
+        
+        
     #Função de medição
     def medicao(self,sentido):
         if (self.verifica_medicao()):
@@ -1202,12 +1298,17 @@ class main_window(Frame):
         var_progressbar=0
         self.var_pb.set(var_progressbar)
         step_progressbar=100/((self.rows)*(self.cols))
+        
         self.meas_time = datetime.now()
         flag_ordem=True #false=esquerda pra direita
         for i in range(0, self.rows):#linha
+            if(self.flag_stop):
+                self.flag_stop = False
+                return
             if(flag_ordem):
                 for j in range(0, self.cols):#coluna
                     if(self.flag_stop):
+                        self.flag_stop = False
                         return
                     if not(sentido):
                         self.matrix_meas_x[i][j]=self.leitura_amplitude()
@@ -1253,6 +1354,7 @@ class main_window(Frame):
             else:
                 for j in reversed(range(0,self.cols)):#coluna
                     if(self.flag_stop):
+                        self.flag_stop = False
                         return
                     if not(sentido):
                         self.matrix_meas_x[i][j]=self.leitura_amplitude()
@@ -1441,10 +1543,10 @@ class main_window(Frame):
         try:
             
             det_measx = np.linalg.det(self.matrix_meas_x)
-            if (det_measx == 0):
-                messagebox.showwarning(title="Erro Ação impossivel",
-                message="Não é possivel realizar está função\nsem a medição")
-                return
+#             if (det_measx == 0):
+#                 messagebox.showwarning(title="Erro Ação impossivel",
+#                 message="Não é possivel realizar está função\nsem a medição")
+#                 return
             data=self.matrix_meas_x
 
         except:
@@ -1680,10 +1782,10 @@ class main_window(Frame):
                 return
         try:
             det_measy = np.linalg.det(self.matrix_meas_y)
-            if (det_measy == 0):
-                messagebox.showwarning(title="Erro Ação impossivel",
-                message="Não é possivel realizar está função\nsem a medição")
-                return
+#             if (det_measy == 0):
+#                 messagebox.showwarning(title="Erro Ação impossivel",
+#                 message="Não é possivel realizar está função\nsem a medição")
+#                 return
             data=self.matrix_meas_y
 
         except:
