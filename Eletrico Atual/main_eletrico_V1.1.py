@@ -1,4 +1,4 @@
-# VERSÃO 1.1
+# VERSÃO 1.1 - Última Atualização 15/06/2022
 #
 
 ## @package Bibliotecas
@@ -810,8 +810,7 @@ class main_window(Frame):
     
     #Função de re medição de ponto
     def medir_ponto(self,row,col):
-        """Função para a medição do ponto selecionado manualmente.
-            blab"""
+        """Função para a medição do ponto selecionado manualmente."""
         if (self.verifica_medicao()):
             return
         
@@ -854,12 +853,16 @@ class main_window(Frame):
                 time.sleep(0.125)
         
         self.matrix_meas[row][col]=self.leitura_amplitude()
-        if(self.matrix_meas[row][col] > self.max_medido):
-            self.max_medido = self.matrix_meas[row][col]
-            self.lbl_par_11['text'] = str(self.max_medido)
-        if(self.matrix_meas[row][col] < self.min_medido):
-            self.min_medido = self.matrix_meas[row][col]
-            self.lbl_par_12['text'] = str(self.min_medido)
+#         if(self.matrix_meas[row][col] > self.max_medido):
+#             self.max_medido = self.matrix_meas[row][col]
+#             self.lbl_par_11['text'] = str(self.max_medido)
+#         if(self.matrix_meas[row][col] < self.min_medido):
+#             self.min_medido = self.matrix_meas[row][col]
+#             self.lbl_par_12['text'] = str(self.min_medido)
+        self.max_medido = np.max(self.matrix_meas)
+        self.lbl_par_11['text'] = str(self.max_medido)
+        self.min_medido = np.min(self.matrix_meas)
+        self.lbl_par_12['text'] = str(self.min_medido)
         self.button_matriz[row][col].config(text="\n"+str(self.matrix_meas[row][col])+" dBm\n")
         
         self.flag_medindo=False
