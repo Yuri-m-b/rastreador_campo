@@ -1,4 +1,4 @@
-#Main Magnético V1.1 - 09/06/2022
+#Main Magnético V1.1 - 23/06/2022
 
 
 #Biblioteca de interface

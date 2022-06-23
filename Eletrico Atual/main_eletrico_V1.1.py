@@ -1,4 +1,4 @@
-# VERSÃO 1.1 - Última Atualização 15/06/2022
+# VERSÃO 1.1 - Última Atualização 23/06/2022
 #
 
 ## @package Bibliotecas
@@ -68,7 +68,9 @@ class main_window(Frame):
     
     def __init__(self):
         """Função método chamado como um construtor na terminologia orientada a objetos
-        esse método e chamado quando um objeto é criado a partir de uma classe"""
+        esse método e chamado quando um objeto é criado a partir de uma classe.
+        __init__(self) quando uma instância de uma subclasse é criada, o python chamará automaticamente o __init__ da classe base.
+        self.serial_cnc e self.visa_analisador são definidas como None ao abrir o programa."""
         super().__init__()
 
         self.initUI()
@@ -77,7 +79,44 @@ class main_window(Frame):
         self.visa_analisador = None
         
     def initUI(self):
-        """ Função que atribui as configurações da 'janela' do programa."""
+        """ Função que atribui as configurações da 'janela' do programa.
+        def_font = Define a fonte usada na interface e seu tamanho.
+        
+        self.master.title = Nome da aba inicial da interface.
+        self.frm_notebook1 = Define a aba/janela , nesse caso
+        o nome da aba é "Controle Auto Scan"
+        frm01 = Frame da interface que contém o menu Serial do programa.
+        frm_ctrls = Frame da interface que contém os botões de movimentação
+        do rastreador.
+        frm_inic = Frame da interface que contém o espaço para definição
+        do tamanho da matriz.
+        frm_param = Frame da interface que contém os parametros das
+        medidas.
+        Progressbar = É a barra de progresso localizada no canto
+        inferior direito da interface.
+        frm_04 = Frame da interface onde está localizado o botão
+        para salvar a matriz como um arquivo csv.
+        frm_pont = Frame da interface onde está localizado os botões
+        para marcação dos pontos 1 e 2 da matriz.
+        
+        self.frm_notebook2 = Define a aba/janela , nesse caso
+        o nome da aba é "Mapa de Calor".
+        frm_plot = Frame da interface que contém as escolhas de plot.
+        frm_plot_parametro = Frame da interface que contém as escolhas
+        dos possíveis tipo usados para a barra de cor.
+        frm_plot_maxmin = Frame da interface que possuí as definições
+        dos parametros da barra de cor.
+        frm_plot_titulo = Frame da interface para definição de um
+        título para o plot.
+        frm_plot_interpolacao = Frame da interface que contém as
+        opções de filtros para o plot.
+        frm_plot_grid = Frame da interface que para definição
+        do uso de grade e/ou unidade para os eixos.
+        frm_plot_espelhamento = Frame da interface para definição
+        do espelhamento do plot.
+        frm_plot_dado = Frame da interface que possuí as opções
+        de plot para o mapa de calor  
+        """
         #-Altera tema da janela
         #style = ThemedStyle(self)
         #style.set_theme("black")
@@ -552,7 +591,13 @@ class main_window(Frame):
     #Função para atualizar lista das portas COM
     def lista_serial(self):
         """ Função utilizada para atualizar os aparelhos conectados via USB nas
-        portas COM do computador."""
+        portas COM do computador.
+        
+        portas = Recebe a lista de portas conectadas ao computador
+        self.cmb_analisador['values'] = Recebe as possíveis portas
+        conectadas ao computador.
+        self.cmb_analisador.set('Escolha...') = Por default escreve
+        no campo em branco "Escolha". """
         portas=controle_cnc.list_serial()
         
         self.cmb_analisador['values'] = portas
@@ -563,7 +608,17 @@ class main_window(Frame):
 
     #Função para iniciar comunicação com analisador
     def abrir_visa_analisador(self):
-        """Função que inicializa a comunicação com o analisador de espectro."""
+        """Função que inicializa a comunicação com o analisador de espectro.
+        if (self.verifica_medicao()) = Verifica se uma medição está ativa,
+        se tiver a função para.
+        com_port =  self.cmb_analisador.get() = Procura por uma conexão
+        ao analisador
+        self.visa_analisador=controle_analisador.open_visa_analisador(com_port, self.visa_analisador)
+        Chama as funções relacionadas a comunicação entre o computador e o analisador.
+        if(self.visa_analisador==None): = Se true vai escrever no botão da interface "abrir".
+        se falso vai escrever "fechar".
+        self.att_freq() = Chama a função de atualizar a frequência do analisador.
+        """
         if (self.verifica_medicao()):
             return
         com_port =  self.cmb_analisador.get()
