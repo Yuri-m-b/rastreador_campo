@@ -1622,6 +1622,12 @@ class main_window(Frame):
         flag_norm = True
         plt.clf() # limpa plot passado
         
+        if not(self.flag_auto_maxmin):
+            if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
+                return
+            if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
+                return
+        
         data_caminho = filedialog.askopenfilename(initialdir = "/",
                                                       title = "Selecione arquivo com extensão CSV",
                                                       filetypes = (("Arquivo Csv","*.csv*"),
@@ -1640,7 +1646,7 @@ class main_window(Frame):
                     y.append(0)  # 0 porque o mapa gerado será apenas para x
         x_tamanho = int(x_tamanho/y_tamanho)
         
-        if(self.flag_auto_maxmin_y):
+        if(self.flag_auto_maxmin):
             vmax=max(map(max,data))
             vmin=min(map(min,data))
 
@@ -1859,6 +1865,11 @@ class main_window(Frame):
         flag_norm = True
         plt.clf()
         
+        if not(self.flag_auto_maxmin_y):
+            if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
+                return
+            if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
+                return
         data_caminho = filedialog.askopenfilename(initialdir = "/",
                                                       title = "Selecione arquivo com extensão CSV",
                                                       filetypes = (("Arquivo Csv","*.csv*"),
@@ -2012,6 +2023,12 @@ class main_window(Frame):
             self.canvas2.get_tk_widget().place(x=5,y=2,width=790)
     
     def plot_dadoatual_xy(self):
+        if not(self.flag_auto_maxmin_xy):
+            if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
+                return
+            if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
+                return
+        
         # Varíaveis resgatadas dos eixos x e y       
         x= self.x_x
         y= self.y_y
@@ -2039,7 +2056,7 @@ class main_window(Frame):
         
         data_norm = np.array_split(norm,len(data))
 
-        if(self.flag_auto_maxmin_y):
+        if(self.flag_auto_maxmin_xy):
             vmax=max(norm)
             vmin=min(norm)
 
@@ -2074,9 +2091,14 @@ class main_window(Frame):
         data = self.x_data
         flag_norm = True
         plt.clf()
-        
         norm = []
         data_norm = []
+        
+        if not(self.flag_auto_maxmin_xy):
+            if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
+                return
+            if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
+                return
 
         for j in range(len(x)):
             if(flag_norm):
@@ -2091,7 +2113,7 @@ class main_window(Frame):
         print(norm)
         print(len(data_norm))
 
-        if(self.flag_auto_maxmin_y):
+        if(self.flag_auto_maxmin_xy):
             vmax=max(norm)
             vmin=min(norm)
 
