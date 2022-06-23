@@ -1535,6 +1535,7 @@ class main_window(Frame):
     #Função de apresentação do mapa de calor para o dado medida realizada
     def plot_dadoatual(self):
      
+        #função que verifica se é numero
         if not(self.flag_auto_maxmin):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
                 return
@@ -1557,8 +1558,8 @@ class main_window(Frame):
             vmax=max(map(max,data))
             vmin=min(map(min,data))
         else:
-            vmax=int(self.var_plot_max.get())#função que verifica se é numero
-            vmin=int(self.var_plot_min.get())#função que veririca se é numero
+            vmax=int(self.var_plot_max.get())
+            vmin=int(self.var_plot_min.get())
         step=[self.var_step_x, self.var_step_y]
         escolhas=[self.cmb_plot_cor.get(), self.var_plot_titulo.get(),
                   self.cmb_plot_interpolacao.get()]
@@ -1622,6 +1623,7 @@ class main_window(Frame):
         flag_norm = True
         plt.clf() # limpa plot passado
         
+        #função que verifica se é numero
         if not(self.flag_auto_maxmin):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
                 return
@@ -1651,8 +1653,8 @@ class main_window(Frame):
             vmin=min(map(min,data))
 
         else:
-            vmax=int(self.var_plot_max_y.get())#função que pega o valor max digitado
-            vmin=int(self.var_plot_min_y.get())#função que pega o valor min digitado
+            vmax=int(self.var_plot_max_y.get())
+            vmin=int(self.var_plot_min_y.get())
         step=[1,1]
         step[0]=float(self.var_plot_tamanho_x.get())/(len(data[0])-1)
         step[1]=float(self.var_plot_tamanho_y.get())/(len(data)-1)
@@ -1781,10 +1783,11 @@ class main_window(Frame):
             
     def plot_dadoatual_y(self):
          
+        #função que verifica se é numero
         if not(self.flag_auto_maxmin_y):
-            if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
+            if(self.verifica_numero(self.var_plot_max_y.get(), 'MAX e MIN do plot')):
                 return
-            if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
+            if(self.verifica_numero(self.var_plot_min_y.get(), 'MAX e MIN do plot')):
                 return
         try:
             det_measy = np.linalg.det(self.matrix_meas_y)
@@ -1802,8 +1805,8 @@ class main_window(Frame):
             vmax=max(map(max,data))
             vmin=min(map(min,data))
         else:
-            vmax=int(self.var_plot_max_y.get())#função que verifica se é numero
-            vmin=int(self.var_plot_min_y.get())#função que veririca se é numero
+            vmax=int(self.var_plot_max_y.get())
+            vmin=int(self.var_plot_min_y.get())
         step=[self.var_step_x, self.var_step_y]
         escolhas=[self.cmb_plot_cor_y.get(), self.var_plot_titulo_y.get(),
                   self.cmb_plot_interpolacao_y.get()]
@@ -1865,6 +1868,7 @@ class main_window(Frame):
         flag_norm = True
         plt.clf()
         
+        #função que verifica se é numero
         if not(self.flag_auto_maxmin_y):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
                 return
@@ -1893,8 +1897,8 @@ class main_window(Frame):
             vmin=min(map(min,data))
 
         else:
-            vmax=int(self.var_plot_max_y.get())#função que pega o valor max digitado
-            vmin=int(self.var_plot_min_y.get())#função que pega o valor min digitado
+            vmax=int(self.var_plot_max_y.get())
+            vmin=int(self.var_plot_min_y.get())
         step=[1,1]
         step[0]=float(self.var_plot_tamanho_x.get())/(len(data[0])-1)
         step[1]=float(self.var_plot_tamanho_y.get())/(len(data)-1)
@@ -2023,12 +2027,14 @@ class main_window(Frame):
             self.canvas2.get_tk_widget().place(x=5,y=2,width=790)
     
     def plot_dadoatual_xy(self):
-        if not(self.flag_auto_maxmin_xy):
-            if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
-                return
-            if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
-                return
         
+        #função que verifica se é numero
+        if not(self.flag_auto_maxmin_xy):
+            if(self.verifica_numero(self.var_plot_max_xy.get(), 'MAX e MIN do plot')):
+                return
+            if(self.verifica_numero(self.var_plot_min_xy.get(), 'MAX e MIN do plot')):
+                return
+            
         # Varíaveis resgatadas dos eixos x e y       
         x= self.x_x
         y= self.y_y
@@ -2042,10 +2048,10 @@ class main_window(Frame):
         ymin = self.y_ymin
         data = self.x_data
         flag_norm = True
-        plt.clf()
-        
+        plt.clf()        
         norm = []
         data_norm = []
+        
 
         for j in range(len(x)):
             if(flag_norm):
@@ -2061,8 +2067,8 @@ class main_window(Frame):
             vmin=min(norm)
 
         else:
-            vmax=int(self.var_plot_max_y.get())#função que pega o valor max digitado
-            vmin=int(self.var_plot_min_y.get())#função que pega o valor min digitado
+            vmax=int(self.var_plot_max_xy.get())
+            vmin=int(self.var_plot_min_xy.get())
         step=[1,1]
         step[0]=float(self.var_plot_tamanho_x.get())/(len(data[0])-1)
         step[1]=float(self.var_plot_tamanho_y.get())/(len(data)-1)
@@ -2094,6 +2100,7 @@ class main_window(Frame):
         norm = []
         data_norm = []
         
+        #função que verifica se é numero
         if not(self.flag_auto_maxmin_xy):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
                 return
@@ -2118,8 +2125,8 @@ class main_window(Frame):
             vmin=min(norm)
 
         else:
-            vmax=int(self.var_plot_max_y.get())#função que pega o valor max digitado
-            vmin=int(self.var_plot_min_y.get())#função que pega o valor min digitado
+            vmax=int(self.var_plot_max_y.get())
+            vmin=int(self.var_plot_min_y.get())
         step=[1,1]
         step[0]=float(self.var_plot_tamanho_x.get())/(len(data[0])-1)
         step[1]=float(self.var_plot_tamanho_y.get())/(len(data)-1)
