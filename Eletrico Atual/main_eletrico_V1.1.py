@@ -1,4 +1,4 @@
-# VERSÃO 1.1 - Última Atualização 23/06/2022
+# VERSÃO 1.1 - Última Atualização 29/06/2022
 #
 
 ## @package Bibliotecas
@@ -638,7 +638,13 @@ class main_window(Frame):
         
     #Função para abrir porta serial da CNC
     def abrir_serial_cnc(self):
-        """Função que abre a porta serial da CNC para comunicação."""
+        """Função que abre a porta serial da CNC para comunicação.
+        Verifica se uma medição já está acontecendo, caso sim, não faz nada.
+        com_port =  self.cmb_cnc.get() = Recebe a informação da porta do serial cnc.
+        self.serial_cnc=controle_cnc.open_serial_cnc(com_port, self.serial_cnc) =
+        Comando que estabelece a comunicação entre PC e o controler cnc.
+        Muda o texto do botão para Abrir/Fechar.
+        """
         if (self.verifica_medicao()):
             return
         com_port =  self.cmb_cnc.get()
@@ -651,7 +657,11 @@ class main_window(Frame):
             
     #Função de movimento através do botões de controle
     def ctrl_movimento_cnc(self, direcao):
-        """Função para movimentação da antena apartir dos botões de controle na interface do programa."""
+        """Função para movimentação da antena apartir dos botões de controle na interface do programa.
+            direcao = direcao.replace('%', self.cmb_step.get()) = Recebe o valor do passo para movimento.
+            str_resposta=controle_cnc.cnc_jog(direcao, self.serial_cnc) = Envia o comando para o controle cnc.
+            self.txt_log.insert = Imprime texto na janela de log.
+        """
         if (self.serial_cnc != None):
             direcao = direcao.replace('%', self.cmb_step.get())
             str_resposta=controle_cnc.cnc_jog(direcao, self.serial_cnc)
@@ -662,7 +672,10 @@ class main_window(Frame):
             
     #Função de movimento durante medição        
     def meas_movimento_cnc(self, direcao, step):
-        """Função utilizada no movimento da antena durante a medição."""
+        """Função utilizada no movimento da antena durante a medição.
+        direcao = direcao.replace('%', str(step)) = Utiliza o valor determinado
+        na varíavel step para a movimentação.
+        """
         if (self.serial_cnc != None):
             direcao = direcao.replace('%', str(step))
             str_resposta=controle_cnc.cnc_jog(direcao, self.serial_cnc)
@@ -672,7 +685,12 @@ class main_window(Frame):
     
     #Função de envio comandos para serial CNC
     def envia_cmd_cnc(self):
-        """Função que envia os comandos serial CNC."""
+        """Função que envia os comandos serial CNC.
+        str_comando=self.ent_cmd.get() = Envia a linha de comando para serial cnc.
+        str_resposta=controle_cnc.send_cmd(str_comando, self.serial_cnc) = Recebe a resposta
+        do comando enviado.
+        self.txt_log.insert = Imprime no log a resposta do comando.
+        """
         if (self.serial_cnc != None):
             str_comando=self.ent_cmd.get()
             
@@ -730,7 +748,12 @@ class main_window(Frame):
     
     #Função de definição de ponto 1
     def start_point(self):
-        """Função que define o ponto 1 para a matriz."""
+        """Função que define o ponto 1 para a matriz.
+        xyz=controle_cnc.current_pos(self.serial_cnc) = Guarda a posição atual do cnc na varíavel xyz.
+        self.start_point_x = Armazena o ponto inicial de x.
+        self.start_point_y = Armazena o ponto inicial de y.
+        self.lbl_par_5.config(text... = Escreve na label 5 os valores dos pontos iniciais.
+        """
         if (self.verifica_medicao()):
             return
         xyz=controle_cnc.current_pos(self.serial_cnc)
@@ -742,7 +765,12 @@ class main_window(Frame):
     
     #Funções de definição de ponto 2
     def end_point(self):#da pra melhorar juntado star_point com end_point passando pra função se é start ou end
-        """Função que define o ponto 2 para a matriz."""
+        """Função que define o ponto 2 para a matriz.
+        xyz=controle_cnc.current_pos(self.serial_cnc) = Guarda a posição atual do cnc na varíavel xyz.
+        self.end_point_x = Armazena o ponto final de x.
+        self.end_point_y = Armazena o ponto final de y.
+        self.lbl_par_6.config(text... = Escreve na label 6 os valores dos pontos finais.
+        """
         if (self.verifica_medicao()):
             return
         xyz=controle_cnc.current_pos(self.serial_cnc)
@@ -754,7 +782,14 @@ class main_window(Frame):
     
     #Função para atualiza passo entre medidas
     def atualiza_passo(self):
-        """Função que atualiza o passo para o eixo X e eixo Y."""
+        """Função que atualiza o passo para o eixo X e eixo Y.
+        self.var_step_x = Recebe o calculo para o passo do movimento do eixo x,
+        usando como variaveis o ponto incial e final do eixo x.
+        self.lbl_part_7.config = Escreve na label 7 o valor do passo para o eixo x.
+        self.var_step_y = Recebe o calculo para o passo do movimento do eixo y,
+        usando como variaveis o ponto incial e final do eixo y.
+        self.lbl_part_8.config = Escreve na label 8 o valor do passo para o eixo y.
+        """
         if (self.verifica_medicao()):
             return
         try:
@@ -777,7 +812,32 @@ class main_window(Frame):
     
     #Função para atualziar tamanho da matriz
     def att_matriz(self):
-        """Função para atualizar o tamanho de matriz de acordo com os valores escolhidos pelo usúario."""
+        """Função para atualizar o tamanho de matriz de acordo com os valores escolhidos pelo usúario.
+        Verifica se uma medição está acontecendo, caso sim, mostra uma mensagem de erro.
+        valor_x = Recebe o tamanho do eixo x para a matriz.
+        valor_y = Recebe o tamanho do eixo y para a matriz.
+        Verifica se os valores digitados são números maiores que zero e não negativos para valor_x e valor_y.
+        "Destroi"/Apaga tabela da matriz já existente e constroi uma nova com o tamanho desejado.
+        self.frame2 = Frame(self.frm_tabela)  = Cria o frame para area dos botões e scrollbar.
+        self.frame2.grid(row=3, column=0, sticky=NW) = Posiciona o frame da area dos botões.
+        self.canvas = Canvas(self.frame2) = Cria a area onde ficam os botões
+        vsbar = Scrollbar(self.frame2, orient=VERTICAL, command=self.canvas.yview) = Cria scrollbar vertical e anexa a area de botões.
+        self.canvas.configure(yscrollcommand=vsbar.set) = Anexa o scrollbar horizontal para a area dos botões.
+        hsbar = Scrollbar(self.frame2, orient=HORIZONTAL, command=self.canvas.xview) = Cria scrollbar horizontal e anexa a area de botões.
+        self.canvas.configure(xscrollcommand=hsbar.set)= Anexa o scrollbar horizontal para a area dos botões.
+        self.buttons_frame = Frame(self.canvas) = Cria frame que contem os botões
+        self.button_matriz = [[None for _ in range(int(valor_x))] for _ in range(int(valor_y))] = Cria matriz de botões
+        self.button_matriz[i][j] = Button... = Adiciona botões no frame.
+        self.button_matriz[i][j]['command'] = lambda var1=i, var2=j: self.medir_ponto(var1,var2) = Envia um comando para
+        realizar a função "medir_ponto" ao aperta um dos botões do frame.
+        self.canvas.create_window((0,0), window=self.buttons_frame, anchor=NW) = Cria janela para os botões
+        self.buttons_frame.update_idletasks() = Necessário para disponibilizar as informações do bbox.
+        bbox = self.canvas.bbox(ALL)  # Obtem espaço delimitador de tela com botões.
+        Define a região rolável do scrollbar como tela inteira com apenas o desejado número de linhas e colunas exibidas.
+        self.cols=int(valor_x) = Define o tamanho de colunas pelo valor de x.
+        self.cols=int(valor_y) = Define o tamanho de colunas pelo valor de y.
+        self.atualiza_passo() = Atualiza o passo.        
+        """
         if (self.flag_medindo):
             print("Botão pressionado y="+str(row)+" x="+str(col))
             messagebox.showwarning(title="Erro Ação impossivel",
