@@ -925,7 +925,26 @@ class main_window(Frame):
     
     #Função de re medição de ponto
     def medir_ponto(self,row,col):
-        """Função para a medição do ponto selecionado manualmente."""
+        """Função para a medição do ponto selecionado manualmente.
+        Verifica se uma medição está acontecendo, caso sim, para a função.
+        if(self.start_point_x<self.end_point_x): x = float(self.start_point_x) =
+        Verifica se ponto superior esquerdo foi definido e atribui as variaveis
+        de coordenada.
+        Variavel xyz = recebe a posição do cnc.
+        x=x+(self.var_step_x*col)-float(xyz[0]) = Calcula a variavel de coordenada.
+        direcao=self.dict_jog['right'] = Define o sentido em qual o cnc vai mover a antena(direita).
+        direcao=self.dict_jog['left'] = Define o sentido em qual o cnc vai mover a antena(esquerda).
+        self.meas_movimento_cnc(direcao, abs(x)) = Movimenta a antena de acordo com o sentido(direcao)
+        e o tamanho do passo (x).
+        self.matrix_meas[row][col]=self.leitura_amplitude() = Recebe o valor da amplitude para o ponto
+        [row][col] atual da matriz.
+        self.max_medido = np.max(self.matrix_meas) = Define o maior valor medido da matriz.
+        self.lbl_par_11['text'] = str(self.max_medido) = Escreve na label 11 o maior valor medido.
+        self.min_medido = np.min(self.matrix_meas) = Define o menor valor medido da matriz.
+        self.lbl_par_12['text'] = str(self.min_medido) = Escreve na label 12 o menor valor medido.
+        self.button_matriz[row][col].config(text="\n"+str(self.matrix_meas[row][col])+" dBm\n") =
+        Escreve no frame dos botões.
+        """
         if (self.verifica_medicao()):
             return
         
@@ -968,12 +987,6 @@ class main_window(Frame):
                 time.sleep(0.125)
         
         self.matrix_meas[row][col]=self.leitura_amplitude()
-#         if(self.matrix_meas[row][col] > self.max_medido):
-#             self.max_medido = self.matrix_meas[row][col]
-#             self.lbl_par_11['text'] = str(self.max_medido)
-#         if(self.matrix_meas[row][col] < self.min_medido):
-#             self.min_medido = self.matrix_meas[row][col]
-#             self.lbl_par_12['text'] = str(self.min_medido)
         self.max_medido = np.max(self.matrix_meas)
         self.lbl_par_11['text'] = str(self.max_medido)
         self.min_medido = np.min(self.matrix_meas)
@@ -984,7 +997,13 @@ class main_window(Frame):
         
     #Função de comunicação com analisador para definição da frequencia de medição
     def att_freq(self):
-        """Função que comunica com o analisador de espectro para sua atualização de frequência."""
+        """Função que comunica com o analisador de espectro para sua atualização de frequência.
+        freq = self.var_freq.get() = Recebe o valor da frequência digitada na interface.
+        (self.verifica_string(freq, 'frequência') = Verifica se string contem somente numero e maior que zero.
+        Calcula a frequência de acordo com a unidade.
+        controle_analisador.receiver_frequencia(self.visa_analisador,freq) = Envia a variavel freq para o
+        analisador.
+        """
         if (self.verifica_medicao()):
             return
         
@@ -1005,7 +1024,36 @@ class main_window(Frame):
     #Função de medição
     def medicao(self):
         """Função que realiza a medição dos pontos, movimenta a antena,
-        recebe os valores de amplitude."""
+        recebe os valores de amplitude.
+        Verifica se ponto superior esquerdo foi definido e atribui a variaveis
+        de coordenada.
+        self.var_pb.set(1) = Define a barra de progresso.
+        self.matrix_meas = [[-80 for _ in range(self.cols)] for _ in range(self.rows)] = Define o tamanho
+        da matriz de acordo com o valores dados para a quantidade de colunas e linhas.
+        var_progressbar=0 = Barra de progresso começa em 0.
+        self.max_medido, self.min_medido = -99, 0 = Define os valores de max e mín.
+        step_progressbar=100/((self.rows)*(self.cols)) = Calcula o tamanho da barra de progesso.
+        self.meas_time = datetime.now() = Salva o tempo antes de começar a medição.
+        flag_ordem=True = True = direita para esquerda se false = esquerda para direita.
+        if(self.matrix_meas[i][j] > self.max_medido) = Se o valor medido no ponto atual
+        for maior que o valor máximo medido, self.max_medido é alterado para o novo valor.
+        if(self.matrix_meas[i][j] < self.min_medido) = Se o valor medido no ponto atual
+        for menor que o valor mínimo medido, self.min_medido é alterado para o novo valor.
+        self.button_matriz[i][j].config...= Escreve o valor da amplitude medido no botão do ponto na tabela.
+        self.var_pb.set(var_progressbar) = Incrementa a barra de progresso.
+        Calcula o tempo total estimado no começo quando i=0 e j=0;
+        delta_t = datetime.now() - self.meas_time = Calcula a diferença entre o tempo salvo no começo
+        com o tempo atual.
+        tempo_total = (self.rows)*(self.cols)*delta_t = Calcula o tempo total.
+        tempo_total = timedelta(seconds=tempo_total.total_seconds()) = Guarda os valores de segundos.
+        horas, sobra = divmod(tempo_total.seconds, 3600) = Guarda os valores de horas e a sobra.
+        minutos, segundos = divmod(sobra, 60) = Guarda os valores de minutos.
+        self.lbl_10.config(text='Tempo estimado de {:02d} : {:02d}: {:02d}'.format(horas, minutos, segundos))
+        Escreve na label 10 o tempo estimado no formato 00h:00m:00s.
+        Repete os mesmos calculos para a medição do tempo conforme o progresso da medição.
+        if(i+1<self.rows) = A antena vai mover para baixo.
+        self.flag_medindo=False = Altera a flag de medição quando termina.    
+        """
         if (self.verifica_medicao()):
             return
         #Verifica se ponto superior esquerdo foi definido e atribui a variaveis
@@ -1097,7 +1145,6 @@ class main_window(Frame):
                             tempo_total = timedelta(seconds=tempo_total.total_seconds())
                             horas, sobra = divmod(tempo_total.seconds, 3600)
                             minutos, segundos = divmod(sobra, 60)
-                            #self.master.update()
                             self.lbl_10.config(text='Tempo estimado de {:02d} : {:02d}: {:02d}'.format(horas, minutos, segundos))
 
                 flag_ordem=False
@@ -1128,20 +1175,31 @@ class main_window(Frame):
                         while(controle_cnc.estado_atual(self.serial_cnc)!='Idle'):
                             print("teste4")
                             time.sleep(0.125)
-                        #time.sleep(self.tempo_entre_medidas) #pra teste da tela atualizando
                 flag_ordem=True
             if(i+1<self.rows):
                 self.meas_movimento_cnc(self.dict_jog['down'], self.var_step_y)
                 while(controle_cnc.estado_atual(self.serial_cnc)!='Idle'):
                     print("teste5")
                     time.sleep(0.125)
-                #time.sleep(self.tempo_entre_medidas) #pra teste da tela atualizando
        
         self.flag_medindo=False
     
     #Função para salvar arquivo com extensão csv
     def save(self):
-        """Função que salva a matriz gerada como um arquivo com extensão csv."""
+        """Função que salva a matriz gerada como um arquivo com extensão csv.
+
+        self.meas_time.strftime = Recebe o tempo em formato de string.
+        
+        file_path = Abre janela para escolher onde o arquivo csv será salvo.
+        
+        file = open(file_path, 'w', newline ='')  = Abre o arquivo csv como modo "write".
+        
+        write = csv.writer(file, delimiter=';')  = Escreve o resultado da medida no arquivo csv.
+        
+        write.writerows(self.matrix_meas) = Escreve todas as linhas da matriz no arquivo csv.
+        
+        messagebox.showwarning = Mensagem de error caso não tenha nenhuma informação para salvar.        
+        """
         try:
             self.meas_time.strftime
             file_path=(filedialog.askdirectory()+'\\'+self.str_save.get()+
