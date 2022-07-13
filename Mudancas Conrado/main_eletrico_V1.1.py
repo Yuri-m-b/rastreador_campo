@@ -41,6 +41,8 @@ import os
 #Escrita e Leitura serial com grbl
 from cnc_controle import controle_cnc
 from analisador_controle import controle_analisador
+from gerador_controle import controle_gerador
+
 
 class main_window(Frame):
     ## @package Variáveis_de_Inicialização
@@ -448,53 +450,54 @@ class main_window(Frame):
         lbl_vamp.grid(row=0, column=0)
                 
         self.vamp=Entry(frm_gerador, width=12)
-        self.vamp.insert(END, 0)
+        self.vamp.insert(END, '%d' % 18)
         self.vamp.grid(row=0, column=1)
         
-        self.cmb_gerador = Combobox(frm_gerador)
-        self.cmb_gerador.place(x=160,y=0,width=60,height=21)
-        self.cmb_gerador['values'] = ['V','mV']
-        self.cmb_gerador['state'] = 'readonly'
-        self.cmb_gerador.current(0)
+        self.vamp_gerador_mag = Combobox(frm_gerador)
+        self.vamp_gerador_mag.place(x=160,y=0,width=60,height=21)
+        self.vamp_gerador_mag['values'] = ['mV', 'V']
+        self.vamp_gerador_mag['state'] = 'readonly'
+        self.vamp_gerador_mag.current(1)
         
         
-        lbl_vamp = Label(frm_gerador, text='Frequência :')
-        lbl_vamp.grid(row=1, column=0)
+        lbl_freq = Label(frm_gerador, text='Frequência :')
+        lbl_freq.grid(row=1, column=0)
         
-        self.freqger=Entry(frm_gerador, width=12)
-        self.freqger.insert(END, 0)
-        self.freqger.grid(row=1, column=1)
+        self.freq_gerador=Entry(frm_gerador, width=12)
+        self.freq_gerador.insert(END, '%d' % 25)
+        self.freq_gerador.grid(row=1, column=1)
         
-        self.cmb_gerador = Combobox(frm_gerador)
-        self.cmb_gerador.place(x=160,y=20,width=60,height=21)
-        self.cmb_gerador['values'] = ['Hz', 'KHz','MHz', 'GHz']        
-        self.cmb_gerador['state'] = 'readonly'
-        self.cmb_gerador.current(0)
+        self.freq_gerador_mag = Combobox(frm_gerador)
+        self.freq_gerador_mag.place(x=160,y=20,width=60,height=21)
+        self.freq_gerador_mag['values'] = ['KHz','MHz']        
+        self.freq_gerador_mag['state'] = 'readonly'
+        self.freq_gerador_mag.current(1)
         
         
         lbl_imp = Label(frm_gerador, text='Impedância :')
         lbl_imp.grid(row=2, column=0)
         
         self.imp=Entry(frm_gerador, width=12)
-        self.imp.insert(END, 0)
+        self.imp.insert(END, '%d' %470)
         self.imp.grid(row=2, column=1)
 
-        self.cmb_gerador = Combobox(frm_gerador)
-        self.cmb_gerador.place(x=160,y=40,width=60,height=23)
-        self.cmb_gerador['values'] = ['Ω', 'KΩ']
-        self.cmb_gerador['state'] = 'readonly'
-        self.cmb_gerador.current(0)
+        self.imp_gerador = Combobox(frm_gerador)
+        self.imp_gerador.place(x=160,y=40,width=60,height=23)
+        self.imp_gerador['values'] = ['Ω', 'KΩ']
+        self.imp_gerador['state'] = 'readonly'
+        self.imp_gerador.current(0)
         
         
-        btn_channel = Button(frm_gerador, text='Ligar Canal')
-        btn_channel.place(x=235, y=0, width=75, height=30)
-        lbl_channel = Label(frm_gerador, text ='Canal desligado!')
-        lbl_channel.place(x=315, y=0, width=100, heigh=30)
+#         btn_channel = Button(frm_gerador, text='Ligar Canal')
+#         btn_channel.place(x=235, y=0, width=75, height=30)
+#         lbl_channel = Label(frm_gerador, text ='Canal desligado!')
+#         lbl_channel.place(x=315, y=0, width=100, heigh=30)
         
-            
+                
+        btn_att_ger = Button(frm_gerador, text='Atualizar')
+        btn_att_ger.place(x=235, y=33, width=75, height=30)
+        btn_att_ger['command'] = self.att_ger
         
-        btn_channel = Button(frm_gerador, text='Atualizar')
-        btn_channel.place(x=235, y=33, width=75, height=30)
         
         #-Botões de atuação medição
         btn_stop = Button(self.frm_notebook1, text='Abortar Medição')
@@ -836,7 +839,7 @@ class main_window(Frame):
             self.flag_stop=True
             self.flag_medindo=False
     
-    #Função para atualziar tamanho da matriz
+    #Função para atualizar tamanho da matriz
     def att_matriz(self):
         """Função para atualizar o tamanho de matriz de acordo com os valores escolhidos pelo usúario."""
         if (self.flag_medindo):
@@ -1002,6 +1005,40 @@ class main_window(Frame):
         else:
             freq=int(freq)*pow(10, 9)
         controle_analisador.receiver_frequencia(self.visa_analisador,freq)
+        
+    def att_ger(self):
+
+        #Configuração da impedância do canal
+        imp_ger = self.imp.get()
+        
+        if(self.imp_gerador.get()=="KΩ"):
+            imp_ger=int(imp_ger)*pow(10, 3)
+        
+        print(imp_ger)
+        controle_gerador.imp(imp_ger)
+
+        #Configuração de frequência 
+        freq_ger = self.freq_gerador.get()
+        
+        if (self.verifica_string(freq_ger, 'frequência')):
+            return
+        if(self.freq_gerador_mag.get()=="KHz"):
+            freq_ger=int(freq_ger)*pow(10, 3)
+        elif(self.freq_gerador_mag.get()=="MHz"):
+            freq_ger=int(freq_ger)*pow(10, 6)
+
+        controle_gerador.frequencia(freq_ger)
+        
+        #Configuração da amplitude de tensão 
+        vamp_ger = self.vamp.get()
+        
+        if(self.vamp_gerador_mag.get()=="mV"):
+            vamp_ger=int(vamp_ger)/pow(10, 3)
+        
+        controle_gerador.vamp(vamp_ger)
+
+        
+        
         
     #Função de medição
     def medicao(self):

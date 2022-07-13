@@ -1,0 +1,1 @@
+USB::0x0699::0x0346::C037753::INSTR  <----- ID do gerador
