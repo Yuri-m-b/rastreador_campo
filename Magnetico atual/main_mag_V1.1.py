@@ -1,4 +1,4 @@
-#Main Magnético V1.1 - 23/06/2022
+#Main Magnético V1.2 - 14/07/2022
 
 
 #Biblioteca de interface
@@ -27,6 +27,7 @@ import os
 #Escrita e Leitura serial com grbl
 from cnc_controle import controle_cnc
 from analisador_controle import controle_analisador
+from gerador_controle import controle_gerador
 
 class main_window(Frame):
     dict_jog = {'up': '$J=G91 Y+% F200',\
@@ -85,7 +86,7 @@ class main_window(Frame):
         #-----------------------------configuração do frame-----------------------------
         #---nome do frame---------------------
         frm_01 = Labelframe(self.frm_notebook1, text='Serial')
-        frm_01.place(x=10,y=1,width=440,height=80)
+        frm_01.place(x=10,y=1,width=440,height=95)
         
         #---configuração da linha/coluna------
         frm_01.columnconfigure(0, pad=3)
@@ -94,6 +95,7 @@ class main_window(Frame):
         frm_01.rowconfigure(1, pad=3)
         frm_01.rowconfigure(2, pad=3)
         frm_01.rowconfigure(3, pad=3)
+        frm_01.rowconfigure(4, pad=3)
         
         #---configuração linha analisador-----
         lbl_01 = Label(frm_01, text='Analisador:')
@@ -122,9 +124,20 @@ class main_window(Frame):
         self.btn_open_cnc.place(x=267,y=28,width=80,height=25)
         self.btn_open_cnc['command'] = self.abrir_serial_cnc
         
+        #---Configuração linha gerador-----
+        lbl_03 = Label(frm_01, text='Gerador:')
+        lbl_03.place(x=5,y=55,width=90,height=20)
+
+        self.cmb_gerador = Combobox(frm_01, width=27)
+        self.cmb_gerador.place(x=73,y=55,width=185,height=20)
+        
+        self.btn_open_gerador = Button(frm_01, text='Abrir')
+        self.btn_open_gerador.place(x=267,y=52,width=80,height=24)
+        self.btn_open_gerador['command'] = self.abrir_visa_gerador
+        
         #---nome do frame---------------------
         frm_ctrls = Labelframe(self.frm_notebook1, text='Controle')
-        frm_ctrls.place(x=10,y=345,width=440,height=340)
+        frm_ctrls.place(x=10,y=445,width=440,height=240)
         
         #---configuração da linha/coluna------
         frm_ctrls.columnconfigure(0, pad=3)
@@ -203,26 +216,26 @@ class main_window(Frame):
         self.cmb_step['values'] = ['2','1','0.5','0.1']
         self.cmb_step.current(1)       
         
-        lbl_06 = Labelframe(frm_ctrls, text='Log:')
-        lbl_06.place(x=10,y=120,width=415,height=170)
-                
-        self.txt_log = scrolledtext.ScrolledText(lbl_06, width=48, height=9)
-        self.txt_log.place(x=1,y=1)
-         
-        lbl_07 = Label(frm_ctrls, text='Comando:')
-        lbl_07.place(x=10,y=295,width=60,height=20)
-         
-        self.ent_cmd = Entry(frm_ctrls, width=25)
-        self.ent_cmd.place(x=80,y=295,width=294,height=20)       
-        self.ent_cmd.bind('<Return>', self.comp_s)
-         
-        self.btn_send_cmd = Button(frm_ctrls, text='Enviar')
-        self.btn_send_cmd.place(x=376,y=294,width=50,height=22)  
-        self.btn_send_cmd['command'] = self.envia_cmd_cnc
+#         lbl_06 = Labelframe(frm_ctrls, text='Log:')
+#         lbl_06.place(x=10,y=120,width=415,height=170)
+#                 
+#         self.txt_log = scrolledtext.ScrolledText(lbl_06, width=48, height=9)
+#         self.txt_log.place(x=1,y=1)
+#          
+#         lbl_07 = Label(frm_ctrls, text='Comando:')
+#         lbl_07.place(x=10,y=295,width=60,height=20)
+#          
+#         self.ent_cmd = Entry(frm_ctrls, width=25)
+#         self.ent_cmd.place(x=80,y=295,width=294,height=20)       
+#         self.ent_cmd.bind('<Return>', self.comp_s)
+#          
+#         self.btn_send_cmd = Button(frm_ctrls, text='Enviar')
+#         self.btn_send_cmd.place(x=376,y=294,width=50,height=22)  
+#         self.btn_send_cmd['command'] = self.envia_cmd_cnc
         
         #---nome do frame---------------------
         frm_inic = Labelframe(self.frm_notebook1, text='Tamanho Matriz')
-        frm_inic.place(x=10,y=80,width=215,height=75)
+        frm_inic.place(x=10,y=95,width=215,height=75)
         
         frm_inic.columnconfigure(0, pad=3)
         frm_inic.columnconfigure(1, pad=3)
@@ -254,7 +267,7 @@ class main_window(Frame):
         
         #---nome do frame---------------------
         frm_param = Labelframe(self.frm_notebook1, text='Parametros')
-        frm_param.place(x=235,y=80,width=215,height=215)
+        frm_param.place(x=235,y=95,width=215,height=215)
         
         frm_param.columnconfigure(0, pad=3)
         frm_param.columnconfigure(1, pad=3)
@@ -343,7 +356,7 @@ class main_window(Frame):
         
         #---nome do frame---------------------
         frm_pont = Labelframe(self.frm_notebook1, text='Definição dos pontos')
-        frm_pont.place(x=10,y=155,width=215,height=65)
+        frm_pont.place(x=10,y=165,width=215,height=65)
         
         btn_pont_start = Button(frm_pont, text='Ponto 1')
         btn_pont_start.place(x=5,y=1,width=100,height=40)
@@ -355,7 +368,7 @@ class main_window(Frame):
         
         #---nome do frame---------------------
         frm_freq = Labelframe(self.frm_notebook1, text='Frequência')
-        frm_freq.place(x=10,y=220,width=215,height=75)
+        frm_freq.place(x=10,y=230,width=215,height=75)
         
         frm_freq.columnconfigure(0, pad=3)
         frm_freq.columnconfigure(1, pad=3)
@@ -381,17 +394,66 @@ class main_window(Frame):
         self.btn_freq_refresh.place(x=72,y=27,width=132,height=25)
         self.btn_freq_refresh['command'] = self.janela_configuracao
         
+        #---Frame do gerador----------------
+        frm_gerador = Labelframe(self.frm_notebook1, text='Gerador')
+        frm_gerador.place(x=10, y=350,width=440,height=90)
+        
+        lbl_vamp = Label(frm_gerador, text='Amplitude :')
+        lbl_vamp.grid(row=0, column=0)
+                
+        self.vamp=Entry(frm_gerador, width=12)
+        self.vamp.insert(END, '%d' % 18)
+        self.vamp.grid(row=0, column=1)
+        
+        self.vamp_gerador_mag = Combobox(frm_gerador)
+        self.vamp_gerador_mag.place(x=160,y=0,width=60,height=21)
+        self.vamp_gerador_mag['values'] = ['mV', 'V']
+        self.vamp_gerador_mag['state'] = 'readonly'
+        self.vamp_gerador_mag.current(1)
+        
+        
+        lbl_freq = Label(frm_gerador, text='Frequência :')
+        lbl_freq.grid(row=1, column=0)
+        
+        self.freq_gerador=Entry(frm_gerador, width=12)
+        self.freq_gerador.insert(END, '%d' % 25)
+        self.freq_gerador.grid(row=1, column=1)
+        
+        self.freq_gerador_mag = Combobox(frm_gerador)
+        self.freq_gerador_mag.place(x=160,y=20,width=60,height=21)
+        self.freq_gerador_mag['values'] = ['KHz','MHz']        
+        self.freq_gerador_mag['state'] = 'readonly'
+        self.freq_gerador_mag.current(1)
+        
+        
+        lbl_imp = Label(frm_gerador, text='Impedância :')
+        lbl_imp.grid(row=2, column=0)
+        
+        self.imp=Entry(frm_gerador, width=12)
+        self.imp.insert(END, '%d' %470)
+        self.imp.grid(row=2, column=1)
+
+        self.imp_gerador = Combobox(frm_gerador)
+        self.imp_gerador.place(x=160,y=40,width=60,height=23)
+        self.imp_gerador['values'] = ['Ω', 'KΩ']
+        self.imp_gerador['state'] = 'readonly'
+        self.imp_gerador.current(0)
+        
+        btn_att_ger = Button(frm_gerador, text='Atualizar')
+        btn_att_ger.place(x=235, y=17, width=75, height=30)
+        btn_att_ger['command'] = self.att_ger        
+        
         #-Botões de atuação medição
         btn_stop = Button(self.frm_notebook1, text='Abortar Medição')
-        btn_stop.place(x=305,y=300,width=145,height=40)
+        btn_stop.place(x=305,y=310,width=145,height=40)
         btn_stop['command'] = self.stop_meas
         
         self.btn_pause = Button(self.frm_notebook1, text='Iniciar Medição Y')
-        self.btn_pause.place(x=157,y=300,width=145,height=40)
+        self.btn_pause.place(x=157,y=310,width=145,height=40)
         self.btn_pause['command'] = lambda sentido=True: self.medicao(sentido)
         
         btn_start = Button(self.frm_notebook1, text='Iniciar Medição X')
-        btn_start.place(x=10,y=300,width=145,height=40)
+        btn_start.place(x=10,y=310,width=145,height=40)
         btn_start['command'] = lambda sentido=False: self.medicao(sentido)
         
         #-Notebook de plotagem
@@ -785,6 +847,9 @@ class main_window(Frame):
         
         self.cmb_cnc['values'] = portas
         self.cmb_cnc.set('Escolha...')
+        
+        self.cmb_gerador['values'] = portas
+        self.cmb_gerador.set('Escolha...')
 
     #Função para iniciar comunicação com analisador
     def abrir_visa_analisador(self):
@@ -814,6 +879,19 @@ class main_window(Frame):
             self.btn_open_cnc['text'] = 'Abrir'
         else:
             self.btn_open_cnc['text'] = 'Fechar'
+            
+    #Função para abrir porta serial do gerador de funções
+    def abrir_visa_gerador(self):
+        if (self.verifica_medicao()):
+            return
+        com_port =  self.cmb_gerador.get()
+        self.visa_gerador=controle_gerador.open_visa_gerador(com_port, self.visa_gerador)
+        if(self.visa_gerador==None):
+            self.btn_open_gerador['text'] = 'Abrir'
+        else:
+            self.btn_open_gerador['text'] = 'Fechar'
+        self.att_ger()
+            
             
     #Função de movimento através do botões de controle
     def ctrl_movimento_cnc(self, direcao):
@@ -1217,26 +1295,35 @@ class main_window(Frame):
             freq=int(freq)*pow(10, 9)
         controle_analisador.receiver_frequencia(self.visa_analisador,freq)
         
-    def att_gerador_freq(self):
-        if (self.verifica_medicao()):
+    def att_ger(self):
+        #Configuração da impedância do canal
+        imp_ger = self.imp.get()
+        
+        if(self.imp_gerador.get()=="KΩ"):
+            imp_ger=int(imp_ger)*pow(10, 3)
+        
+        controle_gerador.imp(imp_ger)
+
+        #Configuração de frequência 
+        freq_ger = self.freq_gerador.get()
+        
+        if (self.verifica_string(freq_ger, 'frequência')):
             return
+        if(self.freq_gerador_mag.get()=="KHz"):
+            freq_ger=int(freq_ger)*pow(10, 3)
+        elif(self.freq_gerador_mag.get()=="MHz"):
+            freq_ger=int(freq_ger)*pow(10, 6)
+
+        controle_gerador.frequencia(freq_ger)
         
-        freq_gerador = self.var_freq_ger()
+        #Configuração da amplitude de tensão 
+        vamp_ger = self.vamp.get()
         
-        #Verifica se string contem somente numero e maior que zero
-        if (self.verifica_string(freq_gerador, 'frequência')):
-            return
+        if(self.vamp_gerador_mag.get()=="mV"):
+            vamp_ger=int(vamp_ger)/pow(10, 3)
         
-        if(self.cmb_freq_ger.get()=="KHz"):
-            freq_gerador=int(freq_gerador)*pow(10, 3)
-        elif(self.cmb_freq_ger.get()=="MHz"):
-            freq_gerador=int(freq_gerador)*pow(10, 6)
-        else:
-            freq_gerador=int(freq_gerador)*pow(10, 9)
-        gerador_controle.gerador_frequencia(self.visa_analisador,freq_gerador)
-        
-        
-        
+        controle_gerador.vamp(vamp_ger)   
+             
     #Função de medição
     def medicao(self,sentido):
         if (self.verifica_medicao()):
