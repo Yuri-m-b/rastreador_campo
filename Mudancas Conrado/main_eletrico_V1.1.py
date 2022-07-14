@@ -177,7 +177,51 @@ class main_window(Frame):
         lbl_02 = Label(frm_01, text='CNC:')
         lbl_02.place(x=5,y=30,width=90,height=20)
 
+        self.cmb_cnc = Combobox(frm_01, width=27)        #-----------------------------configuração do frame-----------------------------
+        #---nome do frame---------------------
+        frm_01 = Labelframe(self.frm_notebook1, text='Serial')
+        frm_01.place(x=10,y=1,width=440,height=95)
+        
+        #---configuração da linha/coluna------
+        frm_01.columnconfigure(0, pad=3)
+        frm_01.columnconfigure(1, pad=3)
+        frm_01.rowconfigure(0, pad=3)
+        frm_01.rowconfigure(1, pad=3)
+        frm_01.rowconfigure(2, pad=3)
+        frm_01.rowconfigure(3, pad=3)
+        frm_01.rowconfigure(4, pad=3)
+        
+        #---configuração linha analisador-----
+        lbl_01 = Label(frm_01, text='Analisador:')
+        lbl_01.place(x=5,y=3,width=90,height=20)
+        
+        self.cmb_analisador = Combobox(frm_01)
+        self.cmb_analisador.place(x=73,y=2,width=185,height=23)
+        
+        self.btn_open_analisador = Button(frm_01, text='Abrir')
+        self.btn_open_analisador.place(x=267,y=1,width=80,height=25)
+        self.btn_open_analisador['command'] = self.abrir_visa_analisador
+        
+        #---Atualização de ports-----------
+        btn_refresh = Button(frm_01, text='Atualizar')
+        btn_refresh.place(x=353,y=12,width=75,height=53)
+        btn_refresh['command'] = self.lista_serial
+        
+        #---configuração linha CNC---------      
+        lbl_02 = Label(frm_01, text='CNC:')
+        lbl_02.place(x=5,y=30,width=90,height=20)
+
         self.cmb_cnc = Combobox(frm_01, width=27)
+        self.cmb_cnc.place(x=73,y=29,width=185,height=23)
+        
+        self.btn_open_cnc = Button(frm_01, text='Abrir')
+        self.btn_open_cnc.place(x=267,y=27,width=80,height=25)
+        self.btn_open_cnc['command'] = self.abrir_serial_cnc
+        
+        #---Configuração linha gerador-----
+        lbl_03 = Label(frm_01, text='Gerador:')
+        lbl_03.place(x=5,y=55,width=90,height=20)
+
         self.cmb_cnc.place(x=73,y=29,width=185,height=23)
         
         self.btn_open_cnc = Button(frm_01, text='Abrir')
@@ -1063,9 +1107,7 @@ class main_window(Frame):
         if(self.vamp_gerador_mag.get()=="mV"):
             vamp_ger=int(vamp_ger)/pow(10, 3)
         
-        controle_gerador.vamp(vamp_ger)
-
-        
+        controle_gerador.vamp(vamp_ger)       
         
         
     #Função de medição
