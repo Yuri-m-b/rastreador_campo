@@ -79,6 +79,7 @@ class main_window(Frame):
         
         self.serial_cnc = None
         self.visa_analisador = None
+        self.visa_gerador = None
         
     def initUI(self):
         """ Função que atribui as configurações da 'janela' do programa.
@@ -145,7 +146,7 @@ class main_window(Frame):
         #-----------------------------configuração do frame-----------------------------
         #---nome do frame---------------------
         frm_01 = Labelframe(self.frm_notebook1, text='Serial')
-        frm_01.place(x=10,y=1,width=440,height=80)
+        frm_01.place(x=10,y=1,width=440,height=95)
         
         #---configuração da linha/coluna------
         frm_01.columnconfigure(0, pad=3)
@@ -154,6 +155,7 @@ class main_window(Frame):
         frm_01.rowconfigure(1, pad=3)
         frm_01.rowconfigure(2, pad=3)
         frm_01.rowconfigure(3, pad=3)
+        frm_01.rowconfigure(4, pad=3)
         
         #---configuração linha analisador-----
         lbl_01 = Label(frm_01, text='Analisador:')
@@ -168,7 +170,7 @@ class main_window(Frame):
         
         #---Atualização de ports-----------
         btn_refresh = Button(frm_01, text='Atualizar')
-        btn_refresh.place(x=353,y=1,width=75,height=53)
+        btn_refresh.place(x=353,y=12,width=75,height=53)
         btn_refresh['command'] = self.lista_serial
         
         #---configuração linha CNC---------      
@@ -179,8 +181,20 @@ class main_window(Frame):
         self.cmb_cnc.place(x=73,y=29,width=185,height=23)
         
         self.btn_open_cnc = Button(frm_01, text='Abrir')
-        self.btn_open_cnc.place(x=267,y=28,width=80,height=25)
+        self.btn_open_cnc.place(x=267,y=27,width=80,height=25)
         self.btn_open_cnc['command'] = self.abrir_serial_cnc
+        
+        #---Configuração linha gerador-----
+        lbl_03 = Label(frm_01, text='Gerador:')
+        lbl_03.place(x=5,y=55,width=90,height=20)
+
+        self.cmb_gerador = Combobox(frm_01, width=27)
+        self.cmb_gerador.place(x=73,y=55,width=185,height=20)
+        
+        self.btn_open_gerador = Button(frm_01, text='Abrir')
+        self.btn_open_gerador.place(x=267,y=52,width=80,height=24)
+        self.btn_open_gerador['command'] = self.abrir_visa_gerador
+    
         
         #---nome do frame---------------------
         frm_ctrls = Labelframe(self.frm_notebook1, text='Controle')
@@ -282,7 +296,7 @@ class main_window(Frame):
         
         #---nome do frame---------------------
         frm_inic = Labelframe(self.frm_notebook1, text='Tamanho Matriz')
-        frm_inic.place(x=10,y=80,width=215,height=75)
+        frm_inic.place(x=10,y=95,width=215,height=75)
         
         frm_inic.columnconfigure(0, pad=3)
         frm_inic.columnconfigure(1, pad=3)
@@ -314,7 +328,7 @@ class main_window(Frame):
         
         #---nome do frame---------------------
         frm_param = Labelframe(self.frm_notebook1, text='Parametros')
-        frm_param.place(x=235,y=80,width=215,height=215)
+        frm_param.place(x=235,y=95,width=215,height=215)
         
         frm_param.columnconfigure(0, pad=3)
         frm_param.columnconfigure(1, pad=3)
@@ -401,7 +415,7 @@ class main_window(Frame):
         
         #---nome do frame---------------------
         frm_pont = Labelframe(self.frm_notebook1, text='Definição dos pontos')
-        frm_pont.place(x=10,y=155,width=215,height=65)
+        frm_pont.place(x=10,y=165,width=215,height=65)
         
         btn_pont_start = Button(frm_pont, text='Ponto 1')
         btn_pont_start.place(x=5,y=1,width=100,height=40)
@@ -413,7 +427,7 @@ class main_window(Frame):
         
         #---nome do frame---------------------
         frm_freq = Labelframe(self.frm_notebook1, text='Frequência')
-        frm_freq.place(x=10,y=220,width=215,height=75)
+        frm_freq.place(x=10,y=230,width=215,height=75)
         
         frm_freq.columnconfigure(0, pad=3)
         frm_freq.columnconfigure(1, pad=3)
@@ -495,7 +509,7 @@ class main_window(Frame):
         
                 
         btn_att_ger = Button(frm_gerador, text='Atualizar')
-        btn_att_ger.place(x=235, y=33, width=75, height=30)
+        btn_att_ger.place(x=235, y=17, width=75, height=30)
         btn_att_ger['command'] = self.att_ger
         
         
@@ -670,6 +684,8 @@ class main_window(Frame):
         self.cmb_cnc['values'] = portas
         self.cmb_cnc.set('Escolha...')
 
+        self.cmb_gerador['values'] = portas
+        self.cmb_gerador.set('Escolha...')
     #Função para iniciar comunicação com analisador
     def abrir_visa_analisador(self):
         """Função que inicializa a comunicação com o analisador de espectro.
@@ -712,6 +728,19 @@ class main_window(Frame):
             self.btn_open_cnc['text'] = 'Abrir'
         else:
             self.btn_open_cnc['text'] = 'Fechar'
+    
+    
+    #Função para abrir porta serial do gerador de funções
+    def abrir_visa_gerador(self):
+        if (self.verifica_medicao()):
+            return
+        com_port =  self.cmb_gerador.get()
+        self.visa_gerador=controle_gerador.open_visa_gerador(com_port, self.visa_gerador)
+        if(self.visa_gerador==None):
+            self.btn_open_gerador['text'] = 'Abrir'
+        else:
+            self.btn_open_gerador['text'] = 'Fechar'
+        self.att_ger()
             
     #Função de movimento através do botões de controle
     def ctrl_movimento_cnc(self, direcao):
@@ -1014,7 +1043,6 @@ class main_window(Frame):
         if(self.imp_gerador.get()=="KΩ"):
             imp_ger=int(imp_ger)*pow(10, 3)
         
-        print(imp_ger)
         controle_gerador.imp(imp_ger)
 
         #Configuração de frequência 
