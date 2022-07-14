@@ -1,4 +1,4 @@
-# VERSÃO 1.1 - Última Atualização 14/07/2022
+# VERSÃO 1.2 - Última Atualização 14/07/2022
 #
 
 ## @package Bibliotecas
