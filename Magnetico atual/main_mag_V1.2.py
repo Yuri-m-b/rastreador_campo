@@ -1,4 +1,4 @@
-#Main Magnético V1.2 - 14/07/2022
+#Main Magnético V1.2 -  25/07/2022
 
 
 #Biblioteca de interface
@@ -216,10 +216,12 @@ class main_window(Frame):
         self.cmb_step['values'] = ['2','1','0.5','0.1']
         self.cmb_step.current(1)       
         
-#         lbl_06 = Labelframe(frm_ctrls, text='Log:')
+        ################# LOG DESATIVADO #################
+        
+        lbl_06 = Labelframe(frm_ctrls, text='Log:')
 #         lbl_06.place(x=10,y=120,width=415,height=170)
 #                 
-#         self.txt_log = scrolledtext.ScrolledText(lbl_06, width=48, height=9)
+        self.txt_log = scrolledtext.ScrolledText(lbl_06, width=48, height=9)
 #         self.txt_log.place(x=1,y=1)
 #          
 #         lbl_07 = Label(frm_ctrls, text='Comando:')
@@ -232,6 +234,8 @@ class main_window(Frame):
 #         self.btn_send_cmd = Button(frm_ctrls, text='Enviar')
 #         self.btn_send_cmd.place(x=376,y=294,width=50,height=22)  
 #         self.btn_send_cmd['command'] = self.envia_cmd_cnc
+
+        ################# LOG DESATIVADO #################
         
         #---nome do frame---------------------
         frm_inic = Labelframe(self.frm_notebook1, text='Tamanho Matriz')
