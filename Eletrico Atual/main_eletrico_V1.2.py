@@ -220,15 +220,15 @@ class main_window(Frame):
         self.btn_open_cnc.place(x=267,y=27,width=80,height=25)
         self.btn_open_cnc['command'] = self.abrir_serial_cnc
         
-        #---Configuração linha gerador-----
-        lbl_03 = Label(frm_01, text='Gerador:')
-        lbl_03.place(x=5,y=55,width=90,height=20)
-
-        self.cmb_cnc.place(x=73,y=29,width=185,height=23)
-        
-        self.btn_open_cnc = Button(frm_01, text='Abrir')
-        self.btn_open_cnc.place(x=267,y=27,width=80,height=25)
-        self.btn_open_cnc['command'] = self.abrir_serial_cnc
+        #---Configuração linha gerador----- APAGAR?
+#         lbl_03 = Label(frm_01, text='Gerador:')
+#         lbl_03.place(x=5,y=55,width=90,height=20)
+# 
+#         self.cmb_cnc.place(x=73,y=29,width=185,height=23)
+#         
+#         self.btn_open_cnc = Button(frm_01, text='Abrir')
+#         self.btn_open_cnc.place(x=267,y=27,width=80,height=25)
+#         self.btn_open_cnc['command'] = self.abrir_serial_cnc
         
         #---Configuração linha gerador-----
         lbl_03 = Label(frm_01, text='Gerador:')
