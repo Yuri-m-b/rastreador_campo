@@ -31,6 +31,10 @@ class main_window(Frame):
     def __init__(self):
         super().__init__()
         self.initUI()
+        
+        self.serial_cnc = None
+        self.visa_analisador = None
+        self.visa_gerador = None
     
     def initUI(self):
         #-Altera todas as fontes
@@ -49,13 +53,41 @@ class main_window(Frame):
                 
         notebook.add(self.frm_notebook1, text='      Controle & Medição      ')
         
+        frm_01 = Labelframe(self.frm_notebook1, text='Serial')
+        frm_01.place(x=10,y=1,width=440,height=95)
+        
+        #---configuração da linha/coluna------
+        frm_01.columnconfigure(0, pad=3)
+        frm_01.columnconfigure(1, pad=3)
+        frm_01.rowconfigure(0, pad=3)
+        frm_01.rowconfigure(1, pad=3)
+        frm_01.rowconfigure(2, pad=3)
+        frm_01.rowconfigure(3, pad=3)
+        frm_01.rowconfigure(4, pad=3)
+        
+        #---configuração linha analisador-----
+        lbl_01 = Label(frm_01, text='Analisador:')
+        lbl_01.place(x=5,y=3,width=90,height=20)
+        
+        self.cmb_analisador = Combobox(frm_01)
+        self.cmb_analisador.place(x=73,y=2,width=185,height=23)      
    
-        self.cmb_analisador = Combobox(self.frm_notebook1)
-        self.cmb_analisador.place(x=73,y=2,width=185,height=23)    
+        self.btn_open_analisador = Button(frm_01, text='Abrir')
+        self.btn_open_analisador.place(x=267,y=1,width=80,height=25)
+        self.btn_open_analisador['command'] = serials.abrir_visa_analisador
+        
+        #---configuração linha CNC---------      
+        lbl_02 = Label(frm_01, text='CNC:')
+        lbl_02.place(x=5,y=30,width=90,height=20)
+
+        self.cmb_cnc = Combobox(frm_01, width=27)
+        self.cmb_cnc.place(x=73,y=29,width=185,height=23)
+        
+        self.btn_open_cnc = Button(frm_01, text='Abrir')
+        self.btn_open_cnc.place(x=267,y=27,width=80,height=25)
+        self.btn_open_cnc['command'] = serials.abrir_serial_cnc
+
             
-#         btn = Button(self.frm_notebook1, text='Abortar Medição')
-#         btn.place(x=235,y=400,width=216,height=40)
-#         btn['command'] = self.dothings
         
         serials.lista_serial(self)       
         
@@ -72,11 +104,46 @@ class serials(Frame):
             self.cmb_analisador['values'] = portas
             self.cmb_analisador.set('Escolha...')
         
-#             self.cmb_cnc['values'] = portas
-#             self.cmb_cnc.set('Escolha...')
+            self.cmb_cnc['values'] = portas
+            self.cmb_cnc.set('Escolha...')
         
 #             self.cmb_gerador['values'] = portas
 #             self.cmb_gerador.set('Escolha...')
+
+        def abrir_visa_analisador():
+#             if (self.verifica_medicao()):
+#                 return
+            com_port =  self.cmb_analisador.get()
+            self.visa_analisador=controle_analisador.open_visa_analisador(com_port, self.visa_analisador)
+            
+            if(self.visa_analisador==None):
+                self.btn_open_analisador['text'] = 'Abrir'
+            else:
+                self.btn_open_analisador['text'] = 'Fechar'
+            self.att_freq()
+            
+       
+        def abrir_serial_cnc(self):
+            if (self.verifica_medicao()):
+                return
+            com_port =  self.cmb_cnc.get()
+            self.serial_cnc=controle_cnc.open_serial_cnc(com_port, self.serial_cnc)
+            
+            if(self.serial_cnc==None):
+                self.btn_open_cnc['text'] = 'Abrir'
+            else:
+                self.btn_open_cnc['text'] = 'Fechar'
+                
+        def abrir_visa_gerador(self):
+            if (self.verifica_medicao()):
+                return
+            com_port =  self.cmb_gerador.get()
+            self.visa_gerador=controle_gerador.open_visa_gerador(com_port, self.visa_gerador)
+            if(self.visa_gerador==None):
+                self.btn_open_gerador['text'] = 'Abrir'
+            else:
+                self.btn_open_gerador['text'] = 'Fechar'
+            self.att_ger()
         
 
 
