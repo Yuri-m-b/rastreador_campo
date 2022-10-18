@@ -418,7 +418,7 @@ class main_window(Frame):
         self.lbl_par_11.grid(row=4, column=1, sticky=E)
         self.lbl_par_12.grid(row=5, column=1, sticky=E)
         
-        #---botão de abrir arquivo CSV Yuri----------------
+        #---botão de abrir arquivo CSV ----------------
         btn_csv_abrir = Button(frm_param, text='Abrir')
         btn_csv_abrir.place(x=20,y=155,width=181,height=25)
         btn_csv_abrir['command'] = self.info_arquivocsv
