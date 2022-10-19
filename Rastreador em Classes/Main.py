@@ -691,7 +691,7 @@ class Serials(Frame):
         #Configuração de frequência 
         freq_ger = self.freq_gerador.get()
         
-        if (self.verifica_string(freq_ger, 'frequência')):
+        if (Tamanho_da_Matriz.verifica_string(self, freq_ger, 'frequência')):
             return
         if(self.freq_gerador_mag.get()=="KHz"):
             freq_ger=int(freq_ger)*pow(10, 3)
