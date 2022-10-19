@@ -94,7 +94,7 @@ class Main_Window(Frame):
         #---Atualização de ports-----------
         btn_refresh = Button(frm_01, text='Atualizar')
         btn_refresh.place(x=353,y=12,width=75,height=53)
-        btn_refresh['command'] = Serials.lista_serial
+        btn_refresh['command'] = lambda: Serials.lista_serial
        
         #---configuração linha CNC---------      
         lbl_02 = Label(frm_01, text='CNC:')
@@ -556,7 +556,7 @@ class Main_Window(Frame):
         self.frm_heatmap = Labelframe(self.frm_notebook2, text='Mapa de calor')
         self.frm_heatmap.place(x=260,y=5,width=805,height=680)
 
-        Serials.lista_serial(self, )
+        Serials.lista_serial(self)
         Tamanho_da_Matriz.att_matriz(self)
 
         
