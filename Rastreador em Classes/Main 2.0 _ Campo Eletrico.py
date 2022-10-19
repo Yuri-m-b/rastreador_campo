@@ -1,3 +1,18 @@
+# VERSÃO 2 - Campo eletrico - Última Atualização 19/10/2022
+#
+
+## @package Bibliotecas
+# tkinter: biblioteca da interface do programa.\n
+# matplotlib: biblioteca usada para a plotagem do mapa de calor.\n\n
+# serial.tools.list_port: biblioteca usada para conexão serial.\n\n
+# time: biblioteca usada para as funções delay.\n\n
+# csv: biblioteca para salvar dados em arquivo csv.\n\n
+# numpy: biblioteca usada para array.\n\n
+# datetime: biblioteca que resgata o tempo da máquina.\n\n
+# os: biblioteca que utiliza funcionalidades dependendo do sistema operacional.\n\n
+# cnc_controle e analisador_controle: bibliotecas para escrita e leitura serial com grbl.
+#
+
 from tkinter import *
 from tkinter.ttk import * # Frame, Label, Entry, Button
 from tkinter import scrolledtext
