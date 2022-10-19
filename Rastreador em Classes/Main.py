@@ -1160,7 +1160,7 @@ class Plots:
                 return
         if(Tamanho_da_Matriz.verifica_string(self, self.var_plot_tamanho_x.get(), 'Tamanho da placa')):
             return
-        if(Tamanho_da_Matriz.verifica_string(self.var_plot_tamanho_y.get(), 'Tamanho da placa')):
+        if(Tamanho_da_Matriz.verifica_string(self, self.var_plot_tamanho_y.get(), 'Tamanho da placa')):
             return
         try:
             data_caminho = filedialog.askopenfilename(initialdir = "/",
