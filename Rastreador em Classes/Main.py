@@ -938,8 +938,8 @@ class Medicao(Frame):
     def leitura_amplitude(self):
         
         #futuro ... integração com o novo analisador
-#         return controle_analisador.receiver_amplitude(self.visa_analisador) #Mudar depois
-        return 10
+        return controle_analisador.receiver_amplitude(self.visa_analisador) #Mudar depois
+
 
             
     def medicao(self):
