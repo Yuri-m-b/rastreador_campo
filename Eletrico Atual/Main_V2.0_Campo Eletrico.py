@@ -1138,9 +1138,9 @@ class Plots:
     def plot_dadoatual(self):
         """Função que gera o mapa de calor de acordo com os dados obtidos pela medição realizada."""
         if not(self.flag_auto_maxmin):
-            if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
+            if(Tamanho_da_Matriz.verifica_string(self, self.var_plot_max.get(), 'MAX e MIN do plot')):
                 return
-            if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
+            if(Tamanho_da_Matriz.verifica_numero(self, self.var_plot_min.get(), 'MAX e MIN do plot')):
                 return
         try:
             data=self.matrix_meas
