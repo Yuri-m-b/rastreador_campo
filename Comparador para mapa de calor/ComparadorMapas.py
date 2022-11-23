@@ -26,6 +26,7 @@ class main_window(Frame):
     flag_medindo, flag_stop = False, False
     flag_grade, flag_anotacao, flag_auto_maxmin= True, True, True
     max_medido, min_medido = -99, 99
+    new_vmax, new_vmin = -99, 99
     
     def __init__(self):
         super().__init__()
@@ -131,13 +132,16 @@ class main_window(Frame):
         #-----------------------------------------
         btn_plt_dado_atual = Button(frm_plot_titulo, text='Plotar Mapas de Calor')
         btn_plt_dado_atual.place(x=5,y=220,width=210,height=40)
-        btn_plt_dado_atual['command'] = self.plot_arquivo_csv
+        btn_plt_dado_atual['command'] = self.mapa_de_calor
         
         self.frm_heatmap = Labelframe(self.frm_notebook1, text='Mapa de calor')
         self.frm_heatmap.place(x=260,y=5,width=805,height=680)
         
+        #Inicialização de Variaveis------------------
         self.num_arquivos = 0
         self.lista_total = [] #Lista que irá armazenar todos os dados
+        self.new_vmax = -99
+        self.new_vmin = 99
     
     def plot_auto_maxmin(self):
         if(self.flag_auto_maxmin):
@@ -188,10 +192,22 @@ class main_window(Frame):
                                    message=('O valor '+mensagem+' deve ser um numero decimal'))
             return True
         return False
+    
+    def parametros_armazenar(self, vmax, vmin):      
+        if(self.flag_auto_maxmin):
+            if(vmax > self.new_vmax):
+                self.new_vmax = vmax
+            if(vmin < self.new_vmin):
+                self.new_vmin= vmin
+        else:
+            vmax=int(self.var_plot_max.get())# Função que verifica se é numero
+            vmin=int(self.var_plot_min.get())# Função que veririca se é numero
+        self.lbl_par_5['text'] = str(self.new_vmax)
+        self.lbl_par_6['text'] = str(self.new_vmin)
             
             
     def plot_arquivo_csv(self):
-        self.num_arquivos = self.num_arquivos + 1 #Contagem para quantidade de arquivos lidos
+        self.num_arquivos = self.num_arquivos + 1 # Contagem para quantidade de arquivos lidos                   
         
         if not (self.flag_auto_maxmin):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
@@ -224,20 +240,12 @@ class main_window(Frame):
         else:
             vmax=int(self.var_plot_max.get())#função que verifica se é numero
             vmin=int(self.var_plot_min.get())#função que veririca se é numero
-        self.lbl_par_5['text'] = str(vmax)
-        self.lbl_par_6['text'] = str(vmin)
-        step=[1,1]
-        step[0]= 1 #step é 1 pq o tamanho da matriz sempre vai ser
-        step[1]= 1
         
-        flag=[self.flag_anotacao, self.flag_grade, False]
-        destino_save=None
+        self.parametros_armazenar(vmax,vmin)
         
-#         self.mapa_de_calor(data, vmax, vmin, step, flag, destino_save)
         
-    def mapa_de_calor(self, data, vmax, vmin, step, flag, destino_save):
-        """Função que gera o plot do mapa de calor de acordo com os dados
-        obtidos."""
+     # Função que gera o plot do mapa de calor de acordo com os dados obtidos.
+    def mapa_de_calor(self):
         #flag[0] habilitação da anotação
         #flag[1] habilitação da grade
         #flag[2] escolha entre apresentação ou salvar
@@ -246,67 +254,87 @@ class main_window(Frame):
         #escolhas[0] cor do mapa de calor
         #escolhas[1] titulo do mapa de calor
         #escolhas[2] interpolação do mapa de calor
+        contador_temp = 0
+        step=[1,1]
+        step[0]= 1 #step é 1 pq o tamanho da matriz sempre vai ser
+        step[1]= 1
         
-        try:
-            self.canvas2.destroy()
-            plt.close('all')
-        except:
-            pass
+        flag=[self.flag_anotacao, self.flag_grade, False]
+        destino_save=None
         
-        #Gera figura de plotagem 
-        fig, ax = plt.subplots()
-        
-        #cor cinza de background
-        if not(flag[2]):
-            fig.patch.set_facecolor('#F0F0F0')
-        
-        #Gera mapa de calor
-        im = ax.imshow(data, interpolation='catrom', cmap='inferno', vmax=vmax, vmin=vmin)
-
-        #Cria anotação do grid
-        anotacao_y = []
-        for i in range (len(data)):
-            anotacao_y.append('%.2fcm' % float(i*step[1]))
+        # Condição que pede o destino para onde os plots serão salvos
+        if (contador_temp == 0):
+            files = [('Portable Graphics Format (PNG)', '*.png'),
+                 ('All Files', '*.*')] 
+            self.destino = filedialog.asksaveasfilename(filetypes = files, defaultextension = ".png")
             
-        anotacao_x=[]
-        for i in range (len(data[0])):
-            anotacao_x.append('%.2fcm' % float(i*step[0]))
+        
+        while(contador_temp != self.num_arquivos):      
+            try:
+                self.canvas2.destroy()
+                plt.close('all')
+            except:
+                pass
             
-        #Configuração de apresentação das anotações
-        if(flag[0]):
-            ax.set_xticks(np.arange(len(anotacao_x)))
-            ax.set_yticks(np.arange(len(anotacao_y)))
-            ax.set_xticklabels(anotacao_x)
-            ax.set_yticklabels(anotacao_y)
-            plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-                     rotation_mode="anchor")
+            #Gera figura de plotagem 
+            fig, ax = plt.subplots()
+            
+            #cor cinza de background
+            if not(flag[2]):
+                fig.patch.set_facecolor('#F0F0F0')
+            
+            #Gera mapa de calor
+            im = ax.imshow(self.lista_total[contador_temp], interpolation='catrom', cmap='inferno', vmax=self.new_vmax, vmin=self.new_vmin)
 
-        #Titulo do mapa de calor
-        ax.set_title(self.var_plot_titulo.get())
+            #Cria anotação do grid
+            anotacao_y = []
+            for i in range (len(self.lista_total[contador_temp])):
+                anotacao_y.append('%.2fcm' % float(i*step[1]))
+                
+            anotacao_x=[]
+            for i in range (len(self.lista_total[contador_temp])):
+                anotacao_x.append('%.2fcm' % float(i*step[0]))
+                
+            #Configuração de apresentação das anotações
+            if(flag[0]):
+                ax.set_xticks(np.arange(len(anotacao_x)))
+                ax.set_yticks(np.arange(len(anotacao_y)))
+                ax.set_xticklabels(anotacao_x)
+                ax.set_yticklabels(anotacao_y)
+                plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+                         rotation_mode="anchor")
 
-        #Adiciona barra de cor
-        if(len(data)>len(data[0])):
-            plt.colorbar(im, shrink=1)
-        else:
-            plt.colorbar(im, shrink=0.8)
-        
-        #Tamanho do mapa de calor
-        plt.xlim(right=len(data[0])-0.5)
-        plt.xlim(left=-0.5)
-        plt.ylim(top=-0.5)
-        plt.ylim(bottom=len(data)-0.5)
-        
-        #Grade
-        if(flag[1]):
-            plt.grid(color='w', which='major', alpha=0.5)
-        
-        self.canvas2 = FigureCanvasTkAgg(fig, master = self.frm_heatmap)
-        self.canvas2.draw()
-        if(len(data)>=len(data[0])):
-            self.canvas2.get_tk_widget().place(x=5,y=5,height=650)
-        else:
-            self.canvas2.get_tk_widget().place(x=5,y=5,width=790)
+            #Titulo do mapa de calor
+            ax.set_title(self.var_plot_titulo.get())
 
+            #Adiciona barra de cor
+            if(len(self.lista_total[contador_temp])>len(self.lista_total[contador_temp])):
+                plt.colorbar(im, shrink=1)
+            else:
+                plt.colorbar(im, shrink=0.8)
+            
+            #Tamanho do mapa de calor
+            plt.xlim(right=len(self.lista_total[contador_temp])-0.5)
+            plt.xlim(left=-0.5)
+            plt.ylim(top=-0.5)
+            plt.ylim(bottom=len(self.lista_total[contador_temp])-0.5)
+            
+            #Grade
+            if(flag[1]):
+                plt.grid(color='w', which='major', alpha=0.5)
+            
+#             self.canvas2 = FigureCanvasTkAgg(fig, master = self.frm_heatmap)
+#             self.canvas2.draw()
+#             if(len(self.lista_total[contador_temp])>=len(self.lista_total[contador_temp])):
+#                 self.canvas2.get_tk_widget().place(x=5,y=5,height=650)
+#             else:
+#                 self.canvas2.get_tk_widget().place(x=5,y=5,width=790)
+
+            plt.savefig(self.destino,bbox_inches="tight")
+            plt.clf()
+            contador_temp = contador_temp + 1
+        plt.clf()
+        plt.close("all")
             
     def plot_salva(self):
         files = [('Portable Graphics Format(PNG)', '*.png'),
