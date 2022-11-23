@@ -396,7 +396,7 @@ class main_window(Frame):
         
         self.btn_freq_refresh = Button(frm_freq, text='Atualizar')
         self.btn_freq_refresh.place(x=72,y=27,width=132,height=25)
-        self.btn_freq_refresh['command'] = self.janela_configuracao
+        self.btn_freq_refresh['command'] = self.att_freq
         
         #---Frame do gerador----------------
         frm_gerador = Labelframe(self.frm_notebook1, text='Gerador')
@@ -940,80 +940,7 @@ class main_window(Frame):
         else:
             return False
         
-    def janela_configuracao(self):
-        # Funcao para abrir pop up window
-        top= Toplevel()
-        top.geometry("250x300")
-        top.title("Configuração")
-        
-        lbl_top_01 = Label(top, text='Frequência:')
-        lbl_top_01.place(x=5,y=3,width=90,height=20)
-        
-        self.var_freq=Entry(top)
-        self.var_freq.insert(END, '%d' % 25)
-        self.var_freq.place(x=73,y=3,width=63,height=20)
-        
-        self.cmb_freq = Combobox(top)
-        self.cmb_freq.place(x=143,y=3,width=60,height=20)
-        self.cmb_freq['values'] = ['GHz','MHz','KHz']
-        self.cmb_freq.current(1)
-        
-        self.btn_freq_refresh = Button(top, text='Atualizar')
-        self.btn_freq_refresh.place(x=72,y=27,width=132,height=25)
-        self.btn_freq_refresh['command'] = self.att_freq
-        
-        lbl_top_02 = Label(top, text='Frequência\ndo Gerador:')
-        lbl_top_02.place(x=5,y=53,width=150,height=50)
-        
-        self.var_freq_ger=Entry(top)
-        self.var_freq_ger.insert(END, '%d' % 25)
-        self.var_freq_ger.place(x=73,y=58,width=63,height=20)
-        
-        self.cmb_freq_ger = Combobox(top)
-        self.cmb_freq_ger.place(x=143,y=58,width=60,height=20)
-        self.cmb_freq_ger['values'] = ['GHz','MHz','KHz']
-        self.cmb_freq_ger.current(1)
-        
-        self.btn_freq_ger_refresh = Button(top, text='Atualizar')
-        self.btn_freq_ger_refresh.place(x=72,y=82,width=132,height=25)
-        self.btn_freq_ger_refresh['command'] = self.att_freq
- 
-        lbl_top_03 = Label(top, text='Impedancia:')
-        lbl_top_03.place(x=5,y=115,width=90,height=20)
-        
-        self.var_imped=Entry(top)
-        self.var_imped.insert(END, '%d' % 25)
-        self.var_imped.place(x=73,y=113,width=63,height=20)
-        
-        self.cmb_imped = Combobox(top)
-        self.cmb_imped.place(x=143,y=113,width=60,height=20)
-        self.cmb_imped['values'] = ['GHz','MHz','KHz']
-        self.cmb_imped.current(1)
-        
-        self.btn_imped_refresh = Button(top, text='Atualizar')
-        self.btn_imped_refresh.place(x=72,y=137,width=132,height=25)
-        self.btn_imped_refresh['command'] = self.att_freq
-        
-        lbl_top_04 = Label(top, text='Amplitude:')
-        lbl_top_04.place(x=5,y=165,width=90,height=20)
-        
-        self.var_amplit=Entry(top)
-        self.var_amplit.insert(END, '%d' % 25)
-        self.var_amplit.place(x=73,y=168,width=63,height=20)
-        
-        self.cmb_amplit = Combobox(top)
-        self.cmb_amplit.place(x=143,y=168,width=60,height=20)
-        self.cmb_amplit['values'] = ['GHz','MHz','KHz']
-        self.cmb_amplit.current(1)
-        
-        self.btn_amplit_refresh = Button(top, text='Atualizar')
-        self.btn_amplit_refresh.place(x=72,y=192,width=132,height=25)
-        self.btn_amplit_refresh['command'] = self.att_freq
-
-        self.btn_output_refresh = Button(top, text='Ligar Saída')
-        self.btn_output_refresh.place(x=72,y=247,width=132,height=30)
-        self.btn_output_refresh['command'] = self.att_freq
-        
+         
     #Função se string contem somente numero e maior que zero     
     def verifica_string(self, string, mensagem):
         #Caso string contem somente numero
