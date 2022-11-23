@@ -32,7 +32,6 @@ class main_window(Frame):
 
         self.initUI()
         
-        
     def initUI(self):
         #-Altera tema da janela
         #style = ThemedStyle(self)
@@ -102,7 +101,7 @@ class main_window(Frame):
         
         self.btn_abrir_plot = Button(frm_plot_titulo, text='Abrir Arquivo CSV')
         self.btn_abrir_plot.place(x=5,y=65,width=213,height=34)
-#         self.btn_abrir_plot['command'] =
+        self.btn_abrir_plot['command'] = self.plot_arquivo_csv
 
         #---nome do frame---------------------
         frm_param = Labelframe(frm_plot_titulo, text='Informações')
@@ -133,7 +132,12 @@ class main_window(Frame):
         btn_plt_dado_atual = Button(frm_plot_titulo, text='Plotar Mapas de Calor')
         btn_plt_dado_atual.place(x=5,y=220,width=210,height=40)
         btn_plt_dado_atual['command'] = self.plot_arquivo_csv
-    
+        
+        self.frm_heatmap = Labelframe(self.frm_notebook1, text='Mapa de calor')
+        self.frm_heatmap.place(x=260,y=5,width=805,height=680)
+        
+        self.num_arquivos = 0
+        self.lista_total = [] #Lista que irá armazenar todos os dados
     
     def plot_auto_maxmin(self):
         if(self.flag_auto_maxmin):
@@ -146,6 +150,19 @@ class main_window(Frame):
             self.var_plot_max['state'] = 'disable'
             self.var_plot_min['state'] = 'disable'
             self.flag_auto_maxmin=True
+            
+    # Função que altera se o plot do mapa de calor será com ou sem anotação.
+    def plot_anotacao(self):
+        if(self.flag_anotacao):
+            self.btn_plt_anotacao.config(text='     Unidade\nDESABILITADO')
+            self.var_plot_tamanho_x['state'] = 'disable'
+            self.var_plot_tamanho_y['state'] = 'disable'
+            self.flag_anotacao=False
+        else:
+            self.btn_plt_anotacao.config(text='Unidade\nHABILITADO')
+            self.var_plot_tamanho_x['state'] = 'enable'
+            self.var_plot_tamanho_y['state'] = 'enable'
+            self.flag_anotacao=True
             
     #Função se string contem somente numero e maior que zero     
     def verifica_string(self, string, mensagem):
@@ -174,15 +191,13 @@ class main_window(Frame):
             
             
     def plot_arquivo_csv(self):
+        self.num_arquivos = self.num_arquivos + 1 #Contagem para quantidade de arquivos lidos
+        
         if not (self.flag_auto_maxmin):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
                 return
             if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
                 return
-        if(self.verifica_string(self.var_plot_tamanho_x.get(), 'Tamanho da placa')):
-            return
-        if(self.verifica_string(self.var_plot_tamanho_y.get(), 'Tamanho da placa')):
-            return
         try:
             data_caminho = filedialog.askopenfilename(initialdir = "/",
                                                       title = "Selecione arquivo com extensão CSV",
@@ -199,31 +214,106 @@ class main_window(Frame):
             #acusa erro de arquivo csv com problema na linha ou coluna
             return
         
+        self.lista_total.append(data) # Armazena a lista do arquivo csv atual dentro da lista total
+        self.lbl_par_4['text'] = str(self.num_arquivos)
+        print(self.lista_total)
+        
         if(self.flag_auto_maxmin):
             vmax=max(map(max,data))
             vmin=min(map(min,data))
-            print(vmax)
-            print(vmin)
         else:
             vmax=int(self.var_plot_max.get())#função que verifica se é numero
             vmin=int(self.var_plot_min.get())#função que veririca se é numero
+        self.lbl_par_5['text'] = str(vmax)
+        self.lbl_par_6['text'] = str(vmin)
         step=[1,1]
-        step[0]=float(self.var_plot_tamanho_x.get())/(len(data[0])-1)
-        step[1]=float(self.var_plot_tamanho_y.get())/(len(data)-1)
+        step[0]= 1 #step é 1 pq o tamanho da matriz sempre vai ser
+        step[1]= 1
         
-        escolhas=[self.cmb_plot_cor.get(), self.var_plot_titulo.get(),
-                  self.cmb_plot_interpolacao.get()]
         flag=[self.flag_anotacao, self.flag_grade, False]
         destino_save=None
         
-        if(self.var_espelhamento_x.get()):#Se espelhamento no eixo X selecionado
-            for aux in data:
-                aux.reverse()
-                
-        if(self.var_espelhamento_y.get()):#Se espelhamento no eixo Y selecionado
-            data.reverse()
+#         self.mapa_de_calor(data, vmax, vmin, step, flag, destino_save)
         
-        self.mapa_de_calor(data, vmax, vmin, step, flag, escolhas, destino_save)
+    def mapa_de_calor(self, data, vmax, vmin, step, flag, destino_save):
+        """Função que gera o plot do mapa de calor de acordo com os dados
+        obtidos."""
+        #flag[0] habilitação da anotação
+        #flag[1] habilitação da grade
+        #flag[2] escolha entre apresentação ou salvar
+        #step[0] passo x
+        #step[1] passo y
+        #escolhas[0] cor do mapa de calor
+        #escolhas[1] titulo do mapa de calor
+        #escolhas[2] interpolação do mapa de calor
+        
+        try:
+            self.canvas2.destroy()
+            plt.close('all')
+        except:
+            pass
+        
+        #Gera figura de plotagem 
+        fig, ax = plt.subplots()
+        
+        #cor cinza de background
+        if not(flag[2]):
+            fig.patch.set_facecolor('#F0F0F0')
+        
+        #Gera mapa de calor
+        im = ax.imshow(data, interpolation='catrom', cmap='inferno', vmax=vmax, vmin=vmin)
+
+        #Cria anotação do grid
+        anotacao_y = []
+        for i in range (len(data)):
+            anotacao_y.append('%.2fcm' % float(i*step[1]))
+            
+        anotacao_x=[]
+        for i in range (len(data[0])):
+            anotacao_x.append('%.2fcm' % float(i*step[0]))
+            
+        #Configuração de apresentação das anotações
+        if(flag[0]):
+            ax.set_xticks(np.arange(len(anotacao_x)))
+            ax.set_yticks(np.arange(len(anotacao_y)))
+            ax.set_xticklabels(anotacao_x)
+            ax.set_yticklabels(anotacao_y)
+            plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+                     rotation_mode="anchor")
+
+        #Titulo do mapa de calor
+        ax.set_title(self.var_plot_titulo.get())
+
+        #Adiciona barra de cor
+        if(len(data)>len(data[0])):
+            plt.colorbar(im, shrink=1)
+        else:
+            plt.colorbar(im, shrink=0.8)
+        
+        #Tamanho do mapa de calor
+        plt.xlim(right=len(data[0])-0.5)
+        plt.xlim(left=-0.5)
+        plt.ylim(top=-0.5)
+        plt.ylim(bottom=len(data)-0.5)
+        
+        #Grade
+        if(flag[1]):
+            plt.grid(color='w', which='major', alpha=0.5)
+        
+        self.canvas2 = FigureCanvasTkAgg(fig, master = self.frm_heatmap)
+        self.canvas2.draw()
+        if(len(data)>=len(data[0])):
+            self.canvas2.get_tk_widget().place(x=5,y=5,height=650)
+        else:
+            self.canvas2.get_tk_widget().place(x=5,y=5,width=790)
+
+            
+    def plot_salva(self):
+        files = [('Portable Graphics Format(PNG)', '*.png'),
+                 ('All Files', '*.*')] 
+        destino = filedialog.asksaveasfilename(filetypes = files, defaultextension = ".png")
+        
+        plt.savefig(destino,bbox_inches="tight")
     
 
 def resize(event):
