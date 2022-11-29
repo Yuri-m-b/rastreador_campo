@@ -140,6 +140,7 @@ class main_window(Frame):
         #Inicialização de Variaveis------------------
         self.num_arquivos = 0
         self.lista_total = [] #Lista que irá armazenar todos os dados
+        self.lista_nomearquivo = [] #Lista que irá armazenar os nomes dos arquivos
         self.new_vmax = -99
         self.new_vmin = 99
     
@@ -207,7 +208,8 @@ class main_window(Frame):
             
             
     def plot_arquivo_csv(self):
-        self.num_arquivos = self.num_arquivos + 1 # Contagem para quantidade de arquivos lidos                   
+        self.num_arquivos = self.num_arquivos + 1 # Contagem para quantidade de arquivos lidos
+        qtd_arquivos = 0 #Variavel que servira para leitura dos arquivos
         
         if not (self.flag_auto_maxmin):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
@@ -215,30 +217,39 @@ class main_window(Frame):
             if(self.verifica_numero(self.var_plot_min.get(), 'MAX e MIN do plot')):
                 return
         try:
-            data_caminho = filedialog.askopenfilename(initialdir = "/",
+            data_caminho = filedialog.askopenfilenames(initialdir = "/",
                                                       title = "Selecione arquivo com extensão CSV",
                                                       filetypes = (("Arquivo Csv","*.csv*"),
                                                                    ("all files","*.*")))
 
             data=[]
-            with open(data_caminho, 'r') as file:
-                reader = csv.reader(file, delimiter = ';', quoting=csv.QUOTE_NONNUMERIC)
-                for row in reader: # each row is a list
-                    data.append(row)
+            while(qtd_arquivos<len(data_caminho)):
+                with open(data_caminho[qtd_arquivos], 'r') as file:
+                    reader = csv.reader(file, delimiter = ';', quoting=csv.QUOTE_NONNUMERIC)
+                    for row in reader: # each row is a list
+                        data.append(row)
+                qtd_arquivos = qtd_arquivos + 1
         except:
             return
-        if(len(data)<1)or(len(data[0])<1):
+        data[0:4]
+        print("data: " +str(data))
+        
+        print("qtd_arquivos " +str(qtd_arquivos))
+        if(len(data[qtd_arquivos])<1):
             #acusa erro de arquivo csv com problema na linha ou coluna
             return
-
-        # Para salvar nome do arquivo
-        name = os.path.basename(data_caminho)
-        self.lista_nomearquivo = []
-        self.lista_nomearquivo.append(name)
+        
+        qtd_arquivos = 0
+        while(qtd_arquivos<len(data_caminho)):
+                # Para salvar nome do arquivo
+                name = os.path.basename(data_caminho[qtd_arquivos])
+                self.lista_nomearquivo.append(name)
+                qtd_arquivos = qtd_arquivos + 1
+        print(self.lista_nomearquivo)
         
         self.lista_total.append(data) # Armazena a lista do arquivo csv atual dentro da lista total
         self.lbl_par_4['text'] = str(self.num_arquivos)
-        print(self.lista_total)
+        print("lista_total:" +str(self.lista_total))
         print(len(self.lista_total))
         
         if(self.flag_auto_maxmin):
@@ -249,6 +260,7 @@ class main_window(Frame):
             vmin=int(self.var_plot_min.get())#função que veririca se é numero
         
         self.parametros_armazenar(vmax,vmin)
+        qtd_arquivos = qtd_arquivos + 1
         
         
      # Função que gera o plot do mapa de calor de acordo com os dados obtidos.
