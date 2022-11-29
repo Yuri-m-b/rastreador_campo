@@ -219,6 +219,7 @@ class main_window(Frame):
                                                       title = "Selecione arquivo com extensão CSV",
                                                       filetypes = (("Arquivo Csv","*.csv*"),
                                                                    ("all files","*.*")))
+
             data=[]
             with open(data_caminho, 'r') as file:
                 reader = csv.reader(file, delimiter = ';', quoting=csv.QUOTE_NONNUMERIC)
@@ -229,10 +230,16 @@ class main_window(Frame):
         if(len(data)<1)or(len(data[0])<1):
             #acusa erro de arquivo csv com problema na linha ou coluna
             return
+
+        # Para salvar nome do arquivo
+        name = os.path.basename(data_caminho)
+        self.lista_nomearquivo = []
+        self.lista_nomearquivo.append(name)
         
         self.lista_total.append(data) # Armazena a lista do arquivo csv atual dentro da lista total
         self.lbl_par_4['text'] = str(self.num_arquivos)
         print(self.lista_total)
+        print(len(self.lista_total))
         
         if(self.flag_auto_maxmin):
             vmax=max(map(max,data))
@@ -256,20 +263,17 @@ class main_window(Frame):
         #escolhas[2] interpolação do mapa de calor
         contador_temp = 0
         step=[1,1]
-        step[0]= 1 #step é 1 pq o tamanho da matriz sempre vai ser
+        step[0]= 1 #step é 1 pq o tamanho da matriz sempre vai ser quadratica
         step[1]= 1
         
         flag=[self.flag_anotacao, self.flag_grade, False]
         destino_save=None
         
-        # Condição que pede o destino para onde os plots serão salvos
-        if (contador_temp == 0):
-            files = [('Portable Graphics Format (PNG)', '*.png'),
-                 ('All Files', '*.*')] 
-            self.destino = filedialog.asksaveasfilename(filetypes = files, defaultextension = ".png")
+        while(contador_temp<len(self.lista_total)):
+            # Condição que pede o destino para onde os plots serão salvos
+            if (contador_temp == 0):
+                self.destino = filedialog.askdirectory()            
             
-        
-        while(contador_temp != self.num_arquivos):      
             try:
                 self.canvas2.destroy()
                 plt.close('all')
@@ -329,19 +333,27 @@ class main_window(Frame):
 #                 self.canvas2.get_tk_widget().place(x=5,y=5,height=650)
 #             else:
 #                 self.canvas2.get_tk_widget().place(x=5,y=5,width=790)
+                
+            plt.savefig(self.destino+'\\'+self.lista_nomearquivo[contador_temp]+".png",bbox_inches="tight")
 
-            plt.savefig(self.destino,bbox_inches="tight")
+#                 plt.savefig(self.destino,bbox_inches="tight")
             plt.clf()
             contador_temp = contador_temp + 1
-        plt.clf()
-        plt.close("all")
+            plt.clf()
+            plt.close("all")
+
             
     def plot_salva(self):
+        i=0
+#         file_path=(filedialog.askdirectory()+'\\'+self.str_save.get()+
+#                        self.meas_time.strftime("_%d-%m-%Y_%H-%M")+".png")
         files = [('Portable Graphics Format(PNG)', '*.png'),
-                 ('All Files', '*.*')] 
-        destino = filedialog.asksaveasfilename(filetypes = files, defaultextension = ".png")
+                 ('All Files', '*.*')]
+   
+        destino = filedialog.askdirectory(str(i) ,defaultextension = ".png")
         
         plt.savefig(destino,bbox_inches="tight")
+        i = i+1
     
 
 def resize(event):
