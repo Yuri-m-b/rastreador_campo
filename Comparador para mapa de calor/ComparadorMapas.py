@@ -361,7 +361,7 @@ class main_window(Frame):
             contador_temp = contador_temp + 1
             
     def reset(self):
-        del globals
+        
 
     
 
