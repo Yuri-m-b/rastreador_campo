@@ -136,9 +136,13 @@ class main_window(Frame):
         
         self.frm_heatmap = Labelframe(self.frm_notebook1, text='Mapa de calor')
         self.frm_heatmap.place(x=260,y=5,width=805,height=680)
+        #-----------------------------------------
+        btn_reset = Button(frm_plot_titulo, text='Reset')
+        btn_reset.place(x=5,y=445,width=210,height=40)
+        btn_reset['command'] = self.reset
+        
         
         #Inicialização de Variaveis------------------
-        self.num_arquivos = 0
         self.lista_total = [] #Lista que irá armazenar todos os dados
         self.lista_nomearquivo = [] #Lista que irá armazenar os nomes dos arquivos
         self.new_vmax = -99
@@ -208,7 +212,7 @@ class main_window(Frame):
             
             
     def plot_arquivo_csv(self):
-        self.num_arquivos = self.num_arquivos + 1 # Contagem para quantidade de arquivos lidos
+#         self.num_arquivos = self.num_arquivos + 1 # Contagem para quantidade de arquivos lidos
         qtd_arquivos = 0 #Variavel que servira para leitura dos arquivos
         
         if not (self.flag_auto_maxmin):
@@ -222,18 +226,20 @@ class main_window(Frame):
                                                       filetypes = (("Arquivo Csv","*.csv*"),
                                                                    ("all files","*.*")))
 
-            data=[]
+            data=[] # Lista original com todos os valores em uma só string
+            data_temp=[] # Lista temporario que armazena os valores relativos a cada arquivo csv em suas respectivas strings
             while(qtd_arquivos<len(data_caminho)):
                 with open(data_caminho[qtd_arquivos], 'r') as file:
                     reader = csv.reader(file, delimiter = ';', quoting=csv.QUOTE_NONNUMERIC)
                     for row in reader: # each row is a list
                         data.append(row)
+                        data_temp.append(row)
+                self.lista_total.append(data_temp) # Organiza todos os dados em uma só lista
                 qtd_arquivos = qtd_arquivos + 1
+                data_temp=[]
         except:
             return
-        data[0:4]
-        print("data: " +str(data))
-        
+        print("data: " +str(data))       
         print("qtd_arquivos " +str(qtd_arquivos))
         if(len(data[qtd_arquivos])<1):
             #acusa erro de arquivo csv com problema na linha ou coluna
@@ -247,8 +253,8 @@ class main_window(Frame):
                 qtd_arquivos = qtd_arquivos + 1
         print(self.lista_nomearquivo)
         
-        self.lista_total.append(data) # Armazena a lista do arquivo csv atual dentro da lista total
-        self.lbl_par_4['text'] = str(self.num_arquivos)
+#         self.lista_total.append(data) # Armazena a lista do arquivo csv atual dentro da lista total
+        self.lbl_par_4['text'] = str(qtd_arquivos)
         print("lista_total:" +str(self.lista_total))
         print(len(self.lista_total))
         
@@ -273,10 +279,11 @@ class main_window(Frame):
         #escolhas[0] cor do mapa de calor
         #escolhas[1] titulo do mapa de calor
         #escolhas[2] interpolação do mapa de calor
-        contador_temp = 0
         step=[1,1]
         step[0]= 1 #step é 1 pq o tamanho da matriz sempre vai ser quadratica
         step[1]= 1
+        
+        contador_temp = 0
         
         flag=[self.flag_anotacao, self.flag_grade, False]
         destino_save=None
@@ -324,16 +331,16 @@ class main_window(Frame):
             ax.set_title(self.var_plot_titulo.get())
 
             #Adiciona barra de cor
-            if(len(self.lista_total[contador_temp])>len(self.lista_total[contador_temp])):
+            if(len(self.lista_total)>len(self.lista_total)):
                 plt.colorbar(im, shrink=1)
             else:
                 plt.colorbar(im, shrink=0.8)
             
             #Tamanho do mapa de calor
-            plt.xlim(right=len(self.lista_total[contador_temp])-0.5)
+            plt.xlim(right=len(self.lista_total)-0.5)
             plt.xlim(left=-0.5)
             plt.ylim(top=-0.5)
-            plt.ylim(bottom=len(self.lista_total[contador_temp])-0.5)
+            plt.ylim(bottom=len(self.lista_total)-0.5)
             
             #Grade
             if(flag[1]):
@@ -350,22 +357,12 @@ class main_window(Frame):
 
 #                 plt.savefig(self.destino,bbox_inches="tight")
             plt.clf()
-            contador_temp = contador_temp + 1
-            plt.clf()
             plt.close("all")
-
+            contador_temp = contador_temp + 1
             
-    def plot_salva(self):
-        i=0
-#         file_path=(filedialog.askdirectory()+'\\'+self.str_save.get()+
-#                        self.meas_time.strftime("_%d-%m-%Y_%H-%M")+".png")
-        files = [('Portable Graphics Format(PNG)', '*.png'),
-                 ('All Files', '*.*')]
-   
-        destino = filedialog.askdirectory(str(i) ,defaultextension = ".png")
-        
-        plt.savefig(destino,bbox_inches="tight")
-        i = i+1
+    def reset(self):
+        del globals
+
     
 
 def resize(event):
