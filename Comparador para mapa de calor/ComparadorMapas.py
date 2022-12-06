@@ -23,8 +23,8 @@ from datetime import datetime, timedelta    #Biblioteca do tempo da maquina
 import os
 
 class main_window(Frame):
-    flag_medindo, flag_stop = False, False
-    flag_grade, flag_anotacao, flag_auto_maxmin= True, True, True
+    flag_medindo, flag_stop, flag_nome= False, False, False
+    flag_grade, flag_anotacao, flag_auto_maxmin = True, True, True
     max_medido, min_medido = -99, 99
     new_vmax, new_vmin = -99, 99
     
@@ -100,13 +100,18 @@ class main_window(Frame):
         self.var_plot_titulo.insert(END, 'nome_exemplo')
         self.var_plot_titulo.place(x=5,y=25,width=210,height=20)
         
+        self.btn_titulo = Button(frm_plot_titulo, text='Título automático Habilitado')
+        self.btn_titulo.place(x=5,y=55,width=213,height=34)
+        self.btn_titulo['command'] = self.plot_name
+        self.var_plot_titulo['state'] = 'disable'
+        
         self.btn_abrir_plot = Button(frm_plot_titulo, text='Abrir Arquivo CSV')
-        self.btn_abrir_plot.place(x=5,y=65,width=213,height=34)
+        self.btn_abrir_plot.place(x=5,y=101,width=213,height=34)
         self.btn_abrir_plot['command'] = self.plot_arquivo_csv
 
         #---nome do frame---------------------
         frm_param = Labelframe(frm_plot_titulo, text='Informações')
-        frm_param.place(x=5,y=105,width=210, height=95)
+        frm_param.place(x=5,y=151,width=210, height=95)
         
         frm_param.columnconfigure(0, pad=3)
         frm_param.columnconfigure(1, pad=3)
@@ -131,14 +136,14 @@ class main_window(Frame):
         
         #-----------------------------------------
         btn_plt_dado_atual = Button(frm_plot_titulo, text='Plotar Mapas de Calor')
-        btn_plt_dado_atual.place(x=5,y=220,width=210,height=40)
+        btn_plt_dado_atual.place(x=5,y=262,width=210,height=40)
         btn_plt_dado_atual['command'] = self.mapa_de_calor
         
         self.frm_heatmap = Labelframe(self.frm_notebook1, text='Mapa de calor')
         self.frm_heatmap.place(x=260,y=5,width=805,height=680)
         #-----------------------------------------
         btn_reset = Button(frm_plot_titulo, text='Reset')
-        btn_reset.place(x=5,y=445,width=210,height=40)
+        btn_reset.place(x=5,y=318,width=210,height=40)
         btn_reset['command'] = self.reset
         
         
@@ -172,6 +177,16 @@ class main_window(Frame):
             self.var_plot_tamanho_x['state'] = 'enable'
             self.var_plot_tamanho_y['state'] = 'enable'
             self.flag_anotacao=True
+    
+    def plot_name(self):
+        if(self.flag_nome):
+            self.btn_titulo.config(text='Título automático HABILITADO')
+            self.var_plot_titulo['state'] = 'disable'
+            self.flag_nome=False
+        else:
+            self.btn_titulo.config(text='Título automático DESABILITADO')
+            self.var_plot_titulo['state'] = 'enable'
+            self.flag_nome=True
             
     #Função se string contem somente numero e maior que zero     
     def verifica_string(self, string, mensagem):
@@ -213,7 +228,7 @@ class main_window(Frame):
             
     def plot_arquivo_csv(self):
 #         self.num_arquivos = self.num_arquivos + 1 # Contagem para quantidade de arquivos lidos
-        qtd_arquivos = 0 #Variavel que servira para leitura dos arquivos
+        self.qtd_arquivos = 0 #Variavel que servira para leitura dos arquivos
         
         if not (self.flag_auto_maxmin):
             if(self.verifica_numero(self.var_plot_max.get(), 'MAX e MIN do plot')):
@@ -226,47 +241,47 @@ class main_window(Frame):
                                                       filetypes = (("Arquivo Csv","*.csv*"),
                                                                    ("all files","*.*")))
 
-            data=[] # Lista original com todos os valores em uma só string
-            data_temp=[] # Lista temporario que armazena os valores relativos a cada arquivo csv em suas respectivas strings
-            while(qtd_arquivos<len(data_caminho)):
-                with open(data_caminho[qtd_arquivos], 'r') as file:
+            self.data=[] # Lista original com todos os valores em uma só string
+            self.data_temp=[] # Lista temporario que armazena os valores relativos a cada arquivo csv em suas respectivas strings
+            while(self.qtd_arquivos<len(data_caminho)):
+                with open(data_caminho[self.qtd_arquivos], 'r') as file:
                     reader = csv.reader(file, delimiter = ';', quoting=csv.QUOTE_NONNUMERIC)
                     for row in reader: # each row is a list
-                        data.append(row)
-                        data_temp.append(row)
-                self.lista_total.append(data_temp) # Organiza todos os dados em uma só lista
-                qtd_arquivos = qtd_arquivos + 1
-                data_temp=[]
+                        self.data.append(row)
+                        self.data_temp.append(row)
+                self.lista_total.append(self.data_temp) # Organiza todos os dados em uma só lista
+                self.qtd_arquivos = self.qtd_arquivos + 1
+                self.data_temp=[]
         except:
             return
-        print("data: " +str(data))       
-        print("qtd_arquivos " +str(qtd_arquivos))
-        if(len(data[qtd_arquivos])<1):
+        print("data: " +str(self.data))       
+        print("qtd_arquivos " +str(self.qtd_arquivos))
+        if(len(self.data[self.qtd_arquivos])<1):
             #acusa erro de arquivo csv com problema na linha ou coluna
             return
         
-        qtd_arquivos = 0
-        while(qtd_arquivos<len(data_caminho)):
+        self.qtd_arquivos = 0
+        while(self.qtd_arquivos<len(data_caminho)):
                 # Para salvar nome do arquivo
-                name = os.path.basename(data_caminho[qtd_arquivos])
+                name = os.path.basename(data_caminho[self.qtd_arquivos])
                 self.lista_nomearquivo.append(name)
-                qtd_arquivos = qtd_arquivos + 1
+                self.qtd_arquivos = self.qtd_arquivos + 1
         print(self.lista_nomearquivo)
         
 #         self.lista_total.append(data) # Armazena a lista do arquivo csv atual dentro da lista total
-        self.lbl_par_4['text'] = str(qtd_arquivos)
+        self.lbl_par_4['text'] = str(self.qtd_arquivos)
         print("lista_total:" +str(self.lista_total))
         print(len(self.lista_total))
         
         if(self.flag_auto_maxmin):
-            vmax=max(map(max,data))
-            vmin=min(map(min,data))
+            vmax=max(map(max,self.data))
+            vmin=min(map(min,self.data))
         else:
             vmax=int(self.var_plot_max.get())#função que verifica se é numero
             vmin=int(self.var_plot_min.get())#função que veririca se é numero
         
         self.parametros_armazenar(vmax,vmin)
-        qtd_arquivos = qtd_arquivos + 1
+        self.qtd_arquivos = self.qtd_arquivos + 1
         
         
      # Função que gera o plot do mapa de calor de acordo com os dados obtidos.
@@ -287,6 +302,10 @@ class main_window(Frame):
         
         flag=[self.flag_anotacao, self.flag_grade, False]
         destino_save=None
+        
+        if (len(self.lista_total) == 0):#verifica se algum arquivo csv foi escolhido
+            messagebox.showwarning(title=('Erro'),
+                                   message=('Escolha os arquivos csv primeiro '))
         
         while(contador_temp<len(self.lista_total)):
             # Condição que pede o destino para onde os plots serão salvos
@@ -328,19 +347,22 @@ class main_window(Frame):
                          rotation_mode="anchor")
 
             #Titulo do mapa de calor
-            ax.set_title(self.var_plot_titulo.get())
+            if(self.flag_nome):
+                ax.set_title(self.var_plot_titulo.get())
+            else:
+                ax.set_title(self.lista_nomearquivo[contador_temp])
 
             #Adiciona barra de cor
-            if(len(self.lista_total)>len(self.lista_total)):
+            if(len(self.lista_total)>len(self.lista_total[contador_temp])):
                 plt.colorbar(im, shrink=1)
             else:
                 plt.colorbar(im, shrink=0.8)
             
             #Tamanho do mapa de calor
-            plt.xlim(right=len(self.lista_total)-0.5)
+            plt.xlim(right=len(self.lista_total[contador_temp])-0.5)
             plt.xlim(left=-0.5)
             plt.ylim(top=-0.5)
-            plt.ylim(bottom=len(self.lista_total)-0.5)
+            plt.ylim(bottom=len(self.lista_total[contador_temp])-0.5)
             
             #Grade
             if(flag[1]):
@@ -361,7 +383,17 @@ class main_window(Frame):
             contador_temp = contador_temp + 1
             
     def reset(self):
-        
+        # Reseta todas as váriaveis de volta para o estado inicial
+        self.data= [] 
+        self.data_temp= [] 
+        self.lista_nomearquivo = []
+        self.lista_total = []
+        self.qtd_arquivos = 0
+        self.lbl_par_4['text'] = str(self.qtd_arquivos)
+        self.new_vmax = -99
+        self.new_vmin = 99
+        self.lbl_par_5['text'] = str(self.new_vmax)
+        self.lbl_par_6['text'] = str(self.new_vmin)
 
     
 
